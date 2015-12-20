@@ -1,0 +1,69 @@
+{
+  "name": "ali-ons",
+  "version": "1.0.0",
+  "description": "Aliyun Open Notification Service Client",
+  "main": "./lib/index.js",
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "autod": "autod",
+    "lint": "eslint . --ext .js",
+    "test": "npm run lint && npm run test-local",
+    "test-local": "egg-bin test",
+    "cov": "TEST_TIMEOUT=60000 egg-bin cov",
+    "ci": "npm run lint && npm run cov",
+    "contributors": "contributors -f plain -o AUTHORS"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ali-sdk/ali-ons.git"
+  },
+  "keywords": [
+    "ons",
+    "aliyun",
+    "ali-sdk"
+  ],
+  "author": "gxcsoccer <gxcsoccer@126.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ali-sdk/ali-ons/issues"
+  },
+  "homepage": "https://github.com/ali-sdk/ali-ons#readme",
+  "dependencies": {
+    "JSON2": "^0.1.0",
+    "address": "^1.0.1",
+    "byte": "^1.1.5",
+    "bytes": "^2.4.0",
+    "chalk": "^1.1.3",
+    "co": "^4.6.0",
+    "co-gather": "^0.0.1",
+    "debug": "^2.6.2",
+    "egg-logger": "^1.5.0",
+    "is-type-of": "^1.0.0",
+    "long": "^3.2.0",
+    "mkdirp": "^0.5.1",
+    "osenv": "^0.1.4",
+    "sdk-base": "^3.1.0",
+    "tcp-base": "^2.0.0",
+    "utility": "^1.11.0"
+  },
+  "devDependencies": {
+    "autod": "^2.7.1",
+    "contributors": "^0.5.1",
+    "egg-bin": "^2.4.0",
+    "egg-ci": "^1.5.0",
+    "eslint": "^3.17.1",
+    "eslint-config-egg": "^3.2.0",
+    "mm": "^2.1.0",
+    "pedding": "^1.1.0",
+    "rimraf": "^2.6.1",
+    "urllib": "^2.21.0"
+  },
+  "engines": {
+    "node": ">= 6.0.0"
+  },
+  "ci": {
+    "version": "6, 7"
+  }
+}

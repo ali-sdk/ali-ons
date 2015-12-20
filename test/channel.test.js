@@ -1,0 +1,218 @@
+'use strict';
+
+const mm = require('mm');
+const assert = require('assert');
+const urllib = require('urllib');
+const Channel = require('../lib/channel');
+const config = require('../example/config');
+const RequestCode = require('../lib/protocol/request_code');
+const ResponseCode = require('../lib/protocol/response_code');
+const RemotingCommand = require('../lib/protocol/command/remoting_command');
+const localIp = require('address').ip();
+const onsAddr = 'http://onsaddr-internet.aliyun.com/rocketmq/nsaddr4client-internet';
+
+describe('test/channel.test.js', function() {
+  let address;
+  before(function(done) {
+    urllib.request(onsAddr, function(err, data, result) {
+      if (err) {
+        return done(err);
+      }
+      if (result && result.status === 200) {
+        address = data.toString().trim().split(';')[0];
+        done();
+      } else {
+        done(new Error('no addresses'));
+      }
+    });
+  });
+
+  afterEach(mm.restore);
+
+  it('should connect ok', function* () {
+    const channel = new Channel(address);
+    yield channel.ready();
+  });
+
+  it('should close ok', done => {
+    const channel = new Channel(address);
+    channel.ready(err => {
+      if (err) {
+        done(err);
+        return;
+      }
+      assert(channel._socket);
+      channel.close();
+    });
+    channel.on('close', () => {
+      assert(!channel._socket);
+      done();
+    });
+  });
+
+  it('should invoke ok', function* () {
+    const channel = new Channel(address, config);
+    yield channel.ready();
+    const res = yield channel.invoke(new RemotingCommand({
+      code: RequestCode.GET_ROUTEINTO_BY_TOPIC,
+      customHeader: {
+        topic: 'TEST_TOPIC',
+      },
+    }), 5000);
+    assert(res);
+    assert(res.body);
+    channel.close();
+  });
+
+  it('should invoke ok though channel not ready', function* () {
+    const channel = new Channel(address);
+    const res = yield channel.invoke(new RemotingCommand({
+      code: RequestCode.GET_ROUTEINTO_BY_TOPIC,
+      customHeader: {
+        topic: 'TEST_TOPIC',
+      },
+    }), 5000);
+    assert(res);
+    assert(res.remark && res.remark.includes('__accessKey is blank'));
+    channel.close();
+  });
+
+  it('should invoke oneway ok', function* () {
+    const channel = new Channel(address);
+    yield channel.invokeOneway(new RemotingCommand({
+      code: RequestCode.GET_KV_CONFIG_BY_VALUE,
+      customHeader: {
+        namespace: 'PROJECT_CONFIG',
+        key: localIp,
+      },
+    }));
+    yield channel.ready();
+  });
+
+  // it('should emit error if connect failed', function(done) {
+  //   done = pedding(done, 2);
+  //   const channel = new Channel('100.100.100.100:9876');
+  //   channel.once('close', function() {
+  //     console.log('channel closed')
+  //     done();
+  //   });
+  //   channel.once('error', function(err) {
+  //     console.log('channel error', err);
+  //     should.exist(err);
+  //     done();
+  //   });
+  // });
+
+  it('should get error response', function* () {
+    const channel = new Channel('100.100.100.100:9876');
+    try {
+      yield channel.invoke(new RemotingCommand({
+        code: RequestCode.GET_KV_CONFIG_BY_VALUE,
+        customHeader: {
+          namespace: 'PROJECT_CONFIG',
+          key: localIp,
+        },
+      }));
+    } catch (err) {
+      console.log(err);
+    }
+    channel.close();
+  });
+
+  // it.only('should throw error if command is invalid', function*() {
+  //   const channel = new Channel(address);
+  //   let isError = false;
+  //   try {
+  //     yield channel.invoke('invalid command', 5000);
+  //   } catch (err) {
+  //     isError = true;
+  //     err.name.should.equal('MQInvalidCommandError');
+  //     err.message.should.equal('Invalid command');
+  //   }
+  //   isError.should.be.ok();
+  //   channel.close();
+  //   channel.close();
+  // });
+
+  it('should clearupInvokes after connection close', function* () {
+    const channel = new Channel(address);
+    yield channel.ready();
+    channel.close();
+    let isError = false;
+    try {
+      yield channel.invoke(new RemotingCommand({
+        code: RequestCode.GET_ROUTEINTO_BY_TOPIC,
+        customHeader: {
+          topic: 'NOT_EXISTS',
+        },
+      }), 5000);
+    } catch (err) {
+      isError = true;
+      assert(err.message === `The socket was closed. (address: ${address})`);
+    }
+    assert(isError);
+  });
+
+  // it('should throw error if invoke after close', function(done) {
+  //   const channel = new Channel(address);
+  //   channel.on('close', function() {
+  //     channel.invoke(new RemotingCommand({
+  //       code: RequestCode.GET_ROUTEINTO_BY_TOPIC,
+  //       customHeader: {
+  //         topic: 'NOT_EXISTS'
+  //       }
+  //     }), 5000, function(err, res) {
+  //       should.exist(err);
+  //       err.message.should.equal(`The socket is already closed`);
+  //       done();
+  //     });
+  //   });
+  //   channel.close();
+  // });
+
+  it('should invoke response ok', function* () {
+    const channel = new Channel(address);
+    yield channel.ready();
+    yield channel.invokeOneway(RemotingCommand.createResponseCommand(ResponseCode.SUCCESS, 1, ''));
+  });
+
+  it('should throw error if invoke timeout', function* () {
+    const channel = new Channel(address);
+    let isError = false;
+    try {
+      yield channel.invoke(new RemotingCommand({
+        code: RequestCode.GET_KV_CONFIG_BY_VALUE,
+        customHeader: {
+          namespace: 'PROJECT_CONFIG',
+          key: localIp,
+        },
+      }), 1);
+    } catch (err) {
+      isError = true;
+      assert(err.name === 'ResponseTimeoutError');
+      assert(err.message === `Server no response in 1ms, address#${address}`);
+    }
+    channel.close();
+    assert(isError);
+  });
+
+  // it('should throw error if connection close by remote server', function(done) {
+  //   const channel = new Channel(address);
+  //   yield channel.ready();
+  //   channel.invoke(new RemotingCommand({
+  //     code: RequestCode.GET_KV_CONFIG_BY_VALUE,
+  //     customHeader: {
+  //       namespace: 'PROJECT_CONFIG',
+  //       key: localIp,
+  //     },
+  //   }), 1, function(err, res) {
+  //     should.exist(err);
+  //     channel.invokes.size.should.equal(0);
+  //     err.name.should.equal('MQSocketClosedError');
+  //     err.message.should.containEql(`${address} conn closed by remote server`);
+  //     done();
+  //   });
+  //   channel.close();
+  // });
+
+});
