@@ -1,0 +1,7 @@
+test/fixtures
+test/benchmark
+node_modules
+coverage
+benchmark
+_lib
+example
