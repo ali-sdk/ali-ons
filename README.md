@@ -1,28 +1,27 @@
-ali-ons
+rocketmq
 =======
-
 [![NPM version][npm-image]][npm-url]
 [![build status][travis-image]][travis-url]
 [![David deps][david-image]][david-url]
 [![node version][node-image]][node-url]
 
-[npm-image]: https://img.shields.io/npm/v/ali-ons.svg?style=flat-square
-[npm-url]: https://npmjs.org/package/ali-ons
-[travis-image]: https://img.shields.io/travis/ali-sdk/ali-ons.svg?style=flat-square
-[travis-url]: https://travis-ci.org/ali-sdk/ali-ons
-[david-image]: https://img.shields.io/david/ali-sdk/ali-ons.svg?style=flat-square
-[david-url]: https://david-dm.org/ali-sdk/ali-ons
+[npm-image]: https://img.shields.io/npm/v/rocketmq.svg?style=flat-square
+[npm-url]: https://npmjs.org/package/rocketmq
+[travis-image]: https://img.shields.io/travis/yeliex/rocketmq.svg?style=flat-square
+[travis-url]: https://travis-ci.org/yeliex/rocketmq
+[david-image]: https://img.shields.io/david/yeliex/rocketmq.svg?style=flat-square
+[david-url]: https://david-dm.org/yeliex/rocketmq
 [node-image]: https://img.shields.io/badge/node.js-%3E=_4.2.3-green.svg?style=flat-square
 [node-url]: http://nodejs.org/download/
 
-Aliyun Open Notification Service Client (base on opensource project [RocketMQ](https://github.com/alibaba/RocketMQ/tree/master/rocketmq-client))
+Rocket MQ SDK support Aliyun Open Notification Service Client (base on opensource project [RocketMQ](https://github.com/alibaba/RocketMQ/tree/master/rocketmq-client))
 
-Sub module of [ali-sdk](https://github.com/ali-sdk/ali-sdk).
+Forked from [ali-ons](https://github.com/ali-sdk/ali-ons)
 
 ## Install
 
 ```bash
-npm install ali-ons --save
+npm install rocketmq --save
 ```
 
 ## Usage
@@ -32,7 +31,7 @@ consumer
 ```js
 'use strict';
 
-const Consumer = require('ali-ons').Consumer;
+const Consumer = require('rocketmq').Consumer;
 const consumer = new Consumer({
   namesrvAddr: 'localhost:9876', // for rocket mq
   accessKey: 'your-accesskey',  // for aliyun-ons
@@ -59,8 +58,8 @@ producer
 ```js
 'use strict';
 
-const Producer = require('ali-ons').Producer;
-const Message = require('ali-ons').Message;
+const Producer = require('rocketmq').Producer;
+const Message = require('rocketmq').Message;
 
 const producer = new Producer({
   namesrvAddr: 'localhost:9876', // for rocket mq

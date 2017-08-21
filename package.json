@@ -1,5 +1,5 @@
 {
-  "name": "aliyun-ons",
+  "name": "rocketmq",
   "version": "1.0.0",
   "description": "Rocket MQ SDK support Aliyun Open Notification Service Client",
   "main": "./lib/index.js",
@@ -21,6 +21,9 @@
   },
   "keywords": [
     "ons",
+    "rocketmq",
+    "ali-ons",
+    "aliyun-ons",
     "aliyun",
     "ali-sdk"
   ],
