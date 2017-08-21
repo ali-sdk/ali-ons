@@ -1,7 +1,7 @@
 {
-  "name": "ali-ons",
+  "name": "rocketmq",
   "version": "1.0.0",
-  "description": "Aliyun Open Notification Service Client",
+  "description": "Rocket MQ SDK support Aliyun Open Notification Service Client",
   "main": "./lib/index.js",
   "files": [
     "lib"
@@ -17,19 +17,22 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ali-sdk/ali-ons.git"
+    "url": "git+https://github.com/yeliex/rocketmq.git"
   },
   "keywords": [
     "ons",
+    "rocketmq",
+    "ali-ons",
+    "aliyun-ons",
     "aliyun",
     "ali-sdk"
   ],
-  "author": "gxcsoccer <gxcsoccer@126.com>",
+  "author": "yeliex <yeliex@yeliex.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ali-sdk/ali-ons/issues"
+    "url": "https://github.com/yeliex/rocketmq/issues"
   },
-  "homepage": "https://github.com/ali-sdk/ali-ons#readme",
+  "homepage": "https://github.com/yeliex/rocketmq#readme",
   "dependencies": {
     "JSON2": "^0.1.0",
     "address": "^1.0.1",
@@ -64,6 +67,6 @@
     "node": ">= 6.0.0"
   },
   "ci": {
-    "version": "6, 7"
+    "version": "6, 7, 8"
   }
 }
