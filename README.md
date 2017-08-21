@@ -34,9 +34,12 @@ consumer
 
 const Consumer = require('ali-ons').Consumer;
 const consumer = new Consumer({
-  accessKey: 'your-accesskey',
-  secretKey: 'your-secretkey',
-  consumerGroup: 'your-consumer-group',
+  namesrvAddr: 'localhost:9876', // for rocket mq
+  accessKey: 'your-accesskey',  // for aliyun-ons
+  secretKey: 'your-secretkey',  // for aliyun-ons
+  onsAddr: '',                   // for aliyun-ons
+  consumerGroup: 'your-consumer-group',  // for aliyun-ons
+  
   isBroadcast: false, // default is false, that mean messages will be pushed to consumer cluster only once.
 });
 
@@ -60,9 +63,10 @@ const Producer = require('ali-ons').Producer;
 const Message = require('ali-ons').Message;
 
 const producer = new Producer({
-  accessKey: 'your-accesskey',
-  secretKey: 'your-secretkey',
-  producerGroup: 'your-producer-group',
+  namesrvAddr: 'localhost:9876', // for rocket mq
+  accessKey: 'your-accesskey',   // for aliyun-ons
+  secretKey: 'your-secretkey',    // for aliyun-ons
+  producerGroup: 'your-producer-group',  // for aliyun-ons
 });
 
 producer.ready(() => {
