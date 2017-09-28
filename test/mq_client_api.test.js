@@ -2,13 +2,13 @@
 
 const assert = require('assert');
 const address = require('address');
-const urllib = require('urllib');
+const httpclient = require('urllib');
 const MQClientAPI = require('../lib/mq_client_api');
 
 describe('test/mq_client_api.test.js', function() {
   let client;
   before(function* () {
-    client = new MQClientAPI(Object.assign({ urllib }, require('../example/config')));
+    client = new MQClientAPI(Object.assign({ httpclient }, require('../example/config')));
     yield client.ready();
   });
 

@@ -2,7 +2,7 @@
 
 const mm = require('mm');
 const assert = require('assert');
-const urllib = require('urllib');
+const httpclient = require('urllib');
 const config = require('../example/config');
 const RemotingClient = require('../lib/remoting_client');
 const RequestCode = require('../lib/protocol/request_code');
@@ -12,7 +12,7 @@ const RemotingCommand = require('../lib/protocol/command/remoting_command');
 describe('test/remoting_client.test.js', function() {
   let client;
   before(function* () {
-    client = new RemotingClient(Object.assign({ urllib }, config));
+    client = new RemotingClient(Object.assign({ httpclient }, config));
     yield client.ready();
   });
 
@@ -23,7 +23,7 @@ describe('test/remoting_client.test.js', function() {
   });
 
   it('should create & ready ok', function* () {
-    const client = new RemotingClient(Object.assign({ urllib }, config));
+    const client = new RemotingClient(Object.assign({ httpclient }, config));
     yield client.ready();
     assert(client._namesrvAddrList.length > 0);
     yield client.close();
@@ -52,7 +52,7 @@ describe('test/remoting_client.test.js', function() {
   });
 
   it('should close ok', function* () {
-    const client = new RemotingClient(Object.assign({ urllib }, config));
+    const client = new RemotingClient(Object.assign({ httpclient }, config));
     yield client.ready();
     const res = yield client.invoke(null, new RemotingCommand({
       code: RequestCode.GET_ROUTEINTO_BY_TOPIC,
@@ -69,7 +69,7 @@ describe('test/remoting_client.test.js', function() {
   });
 
   it('should invoke ok after close', function* () {
-    const client = new RemotingClient(Object.assign({ urllib }, config));
+    const client = new RemotingClient(Object.assign({ httpclient }, config));
     yield client.ready();
     const res = yield client.invoke(null, new RemotingCommand({
       code: RequestCode.GET_ROUTEINTO_BY_TOPIC,

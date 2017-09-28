@@ -5,32 +5,30 @@ const co = require('co');
 const path = require('path');
 const osenv = require('osenv');
 const assert = require('assert');
-const pedding = require('pedding');
-const rimraf = require('rimraf');
-const urllib = require('urllib');
+const httpclient = require('urllib');
 const utils = require('../lib/utils');
 const Message = require('../').Message;
 const Consumer = require('../').Consumer;
 const Producer = require('../').Producer;
+const sleep = require('mz-modules/sleep');
+const rimraf = require('mz-modules/rimraf');
 const config = require('../example/config');
 
 const localOffsetStoreDir = path.join(osenv.home(), '.rocketmq_offsets_node');
-const sleep = timeout => callback => setTimeout(callback, timeout);
 
-describe('test/index.test.js', function() {
-
-  describe('API', function* () {
+describe('test/index.test.js', () => {
+  describe('API', () => {
     let producer;
     let consumer;
     before(function* () {
       producer = new Producer(Object.assign({
-        urllib,
+        httpclient,
         retryAnotherBrokerWhenNotStoreOK: true,
         compressMsgBodyOverHowmuch: 10,
       }, config));
       yield producer.ready();
       consumer = new Consumer(Object.assign({
-        urllib,
+        httpclient,
         rebalanceInterval: 1000,
         isBroadcast: true,
       }, config));
@@ -83,14 +81,14 @@ describe('test/index.test.js', function() {
       let sendResult = yield producer.send(msg);
       assert(sendResult && sendResult.msgId);
 
-      mm(producer.mqClient, 'findBrokerAddressInPublish', () => {
+      mm(producer._mqClient, 'findBrokerAddressInPublish', () => {
         mm.restore();
         return null;
       });
       sendResult = yield producer.send(msg);
       assert(sendResult && sendResult.msgId);
 
-      mm(producer.mqClient, 'findBrokerAddressInPublish', () => {
+      mm(producer._mqClient, 'findBrokerAddressInPublish', () => {
         return null;
       });
 
@@ -138,12 +136,9 @@ describe('test/index.test.js', function() {
       }).then(() => console.log('over')).catch(err => console.log(err));
     });
 
-    it('should updateProcessQueueTableInRebalance ok', function* () {
-      consumer.subscribe('ALIPUSH_DISPATCH', '*');
-      consumer.on('message', msgs => {
-        for (const msg of msgs) {
-          console.log('message receive ------------> ', msg.body.toString());
-        }
+    it.skip('should updateProcessQueueTableInRebalance ok', function* () {
+      consumer.subscribe('ALIPUSH_DISPATCH', '*', function* (msg) {
+        console.log('message receive ------------> ', msg.body.toString());
       });
       yield sleep(5000);
       yield consumer.updateProcessQueueTableInRebalance('xxx', []);
@@ -155,8 +150,7 @@ describe('test/index.test.js', function() {
   });
 
   // 广播消费
-  describe('broadcast', function() {
-
+  describe('broadcast', () => {
     [
       'CONSUME_FROM_LAST_OFFSET_AND_FROM_MIN_WHEN_BOOT_FIRST',
       'CONSUME_FROM_MIN_OFFSET',
@@ -168,23 +162,23 @@ describe('test/index.test.js', function() {
       let consumer;
       let producer;
       describe(`consumeFromWhere => ${consumeFromWhere}`, () => {
-        before(function(done) {
-          if (consumeFromWhere === 'CONSUME_FROM_TIMESTAMP') {
-            rimraf.sync(localOffsetStoreDir);
-          }
-
-          done = pedding(done, 2);
+        before(() => {
+          return rimraf(localOffsetStoreDir);
+        });
+        before(function* () {
           consumer = new Consumer(Object.assign({
-            urllib,
+            httpclient,
             consumeFromWhere,
             isBroadcast: true,
             rebalanceInterval: 2000,
           }, config));
-          consumer.ready(done);
           producer = new Producer(Object.assign({
-            urllib,
+            httpclient,
           }, config));
-          producer.ready(done);
+          yield [
+            consumer.ready(),
+            producer.ready(),
+          ];
         });
 
         after(function* () {
@@ -195,64 +189,31 @@ describe('test/index.test.js', function() {
         afterEach(mm.restore);
 
         it('should subscribe message ok', function* () {
-          const msg = new Message('TEST_TOPIC', // topic
+          let msgId;
+          consumer.subscribe('TEST_TOPIC', 'TagA', function* (msg) {
+            console.log('message receive ------------> ', msg.body.toString());
+            assert(msg.tags !== 'TagB');
+            if (msg.msgId === msgId) {
+              assert(msg.body.toString() === 'Hello MetaQ !!! ');
+              consumer.emit('TagA');
+            }
+          });
+
+          yield sleep(5000);
+
+          let msg = new Message('TEST_TOPIC', // topic
+            'TagB', // tag
+            'Hello MetaQ !!! ' // body
+          );
+          let sendResult = yield producer.send(msg);
+          assert(sendResult && sendResult.msgId);
+          msg = new Message('TEST_TOPIC', // topic
             'TagA', // tag
             'Hello MetaQ !!! ' // body
           );
-          consumer.subscribe('TEST_TOPIC', '*');
-          let msgId;
-          consumer.once('message', msgs => {
-            for (const msg of msgs) {
-              console.log('message receive ------------> ', msg.body.toString());
-            }
-          });
-          consumer.on('message', msgs => {
-            msgs.forEach(msg => {
-              console.log('message receive ------------> ', msg.body.toString());
-              if (msg.msgId === msgId) {
-                assert(msg.body.toString() === 'Hello MetaQ !!! ');
-                consumer.emit('*');
-              }
-            });
-          });
-
-          yield sleep(5000);
-
-          const sendResult = yield producer.send(msg);
+          sendResult = yield producer.send(msg);
           assert(sendResult && sendResult.msgId);
           msgId = sendResult.msgId;
-
-          yield consumer.await('*');
-        });
-
-        it('should subscribe message with tags ok', function* () {
-          const msg = new Message('TEST_TOPIC', // topic
-            'TagA', // tag
-            'Hello TagA !!! ' // body
-          );
-          consumer.subscribe('TEST_TOPIC', 'TagA');
-          let msgId;
-          consumer.once('message', msgs => {
-            for (const msg of msgs) {
-              console.log('message receive ------------> ', msg.body.toString());
-            }
-          });
-          consumer.on('message', msgs => {
-            msgs.forEach(msg => {
-              console.log('message receive ------------> ', msg.body.toString());
-              if (msg.msgId === msgId) {
-                assert(msg.body.toString() === 'Hello TagA !!! ');
-                consumer.emit('TagA');
-              }
-            });
-          });
-
-          yield sleep(5000);
-
-          const sendResult = yield producer.send(msg);
-          assert(sendResult && sendResult.msgId);
-          msgId = sendResult.msgId;
-
           yield consumer.await('TagA');
         });
 
@@ -274,18 +235,18 @@ describe('test/index.test.js', function() {
   });
 
   // 集群消费
-  describe('cluster', function() {
+  describe('cluster', () => {
     const topic = 'TEST_TOPIC';
     let consumer;
     let producer;
     before(function* () {
       consumer = new Consumer(Object.assign({
-        urllib,
+        httpclient,
         isBroadcast: false,
       }, config));
       yield consumer.ready();
       producer = new Producer(Object.assign({
-        urllib,
+        httpclient,
       }, config));
       yield producer.ready();
     });
@@ -311,19 +272,122 @@ describe('test/index.test.js', function() {
       console.log(sendResult);
 
       yield cb => {
-        function onMessage(msgs, complete) {
-          msgs.forEach(function(msg) {
-            if (msg.msgId === msgId) {
-              assert(msg.body.toString() === 'Hello MetaQ !!! ');
-              consumer.removeListener('message', onMessage);
-              cb();
-            }
-          });
-          complete();
-        }
-        consumer.on('message', onMessage);
-        consumer.subscribe(topic, '*');
+        consumer.subscribe(topic, '*', function* (msg) {
+          if (msg.msgId === msgId) {
+            assert(msg.body.toString() === 'Hello MetaQ !!! ');
+            cb();
+          }
+        });
       };
+    });
+  });
+
+  describe('process exception', () => {
+    let consumer;
+    let producer;
+    before(function* () {
+      consumer = new Consumer(Object.assign({
+        httpclient,
+        rebalanceInterval: 2000,
+      }, config));
+      producer = new Producer(Object.assign({
+        httpclient,
+      }, config));
+      yield [
+        consumer.ready(),
+        producer.ready(),
+      ];
+    });
+
+    after(function* () {
+      yield producer.close();
+      yield consumer.close();
+    });
+
+    it('should retry if process failed', function* () {
+      let msgId;
+      consumer.subscribe('TEST_TOPIC', '*', function* (msg) {
+        console.log('message receive ------------> ', msg.body.toString());
+        if (msg.msgId === msgId) {
+          assert(msg.body.toString() === 'Hello MetaQ !!! ');
+          if (msg.reconsumeTimes === 0) {
+            throw new Error('mock error');
+          }
+          consumer.emit('*');
+        }
+      });
+
+      yield sleep(5000);
+
+      const msg = new Message('TEST_TOPIC', // topic
+        'TagA', // tag
+        'Hello MetaQ !!! ' // body
+      );
+      const sendResult = yield producer.send(msg);
+      assert(sendResult && sendResult.msgId);
+      msgId = sendResult.msgId;
+      yield consumer.await('*');
+    });
+  });
+
+  describe('flow control', () => {
+    let consumer;
+    let producer;
+    before(function* () {
+      yield rimraf(localOffsetStoreDir);
+      consumer = new Consumer(Object.assign({
+        httpclient,
+        isBroadcast: true,
+        rebalanceInterval: 2000,
+        pullThresholdForQueue: 1,
+        consumeFromWhere: 'CONSUME_FROM_FIRST_OFFSET',
+        pullTimeDelayMillsWhenFlowControl: 5000,
+      }, config));
+      producer = new Producer(Object.assign({
+        httpclient,
+      }, config));
+      yield [
+        consumer.ready(),
+        producer.ready(),
+      ];
+    });
+
+    after(function* () {
+      yield producer.close();
+      yield consumer.close();
+    });
+
+    it('should retry if process failed', function* () {
+      let count = 20;
+      while (count--) {
+        const msg = new Message('TEST_TOPIC', // topic
+          'TagA', // tag
+          'Hello MetaQ !!! ' // body
+        );
+        const sendResult = yield producer.send(msg);
+        assert(sendResult && sendResult.msgId);
+      }
+
+      consumer.subscribe('TEST_TOPIC', '*', function* (msg, mq, pq) {
+        console.log('message receive ------------> ', msg.body.toString());
+
+        const msgCount = pq.msgCount;
+        yield sleep(10000);
+
+        // 不再拉取
+        try {
+          console.info('----------------> origin msgCount %d, current msgCount %d', msgCount, pq.msgCount);
+          assert(msgCount === 1 || pq.msgCount === msgCount);
+          consumer.emit('over');
+        } catch (err) {
+          consumer.emit('error', err);
+        }
+      });
+
+      yield Promise.race([
+        consumer.await('over'),
+        consumer.await('error'),
+      ]);
     });
   });
 });

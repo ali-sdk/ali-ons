@@ -1,12 +1,12 @@
 'use strict';
 
 const assert = require('assert');
-const urllib = require('urllib');
+const httpclient = require('urllib');
 const ClientConfig = require('../lib/client_config');
 const MQClient = require('../lib/mq_client');
 
 describe('test/mq_client.test.js', () => {
-  const config = new ClientConfig(Object.assign({ urllib }, require('../example/config')));
+  const config = new ClientConfig(Object.assign({ httpclient }, require('../example/config')));
 
   let client;
   before(function* () {

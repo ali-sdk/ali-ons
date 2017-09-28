@@ -1,7 +1,7 @@
 'use strict';
 
 const assert = require('assert');
-const urllib = require('urllib');
+const httpclient = require('urllib');
 const MQClient = require('../../lib/mq_client');
 const config = require('../../example/config');
 const ClientConfig = require('../../lib/client_config');
@@ -12,7 +12,7 @@ describe('test/store/remote_broker.test.js', function() {
   let client;
   let brokerName;
   before(function* () {
-    client = new MQClient(new ClientConfig(Object.assign({ urllib }, config)));
+    client = new MQClient(new ClientConfig(Object.assign({ httpclient }, config)));
     yield client.ready();
     const routerInfoData = yield client.getDefaultTopicRouteInfoFromNameServer('TEST_TOPIC', 3000);
     brokerName = routerInfoData.brokerDatas[0].brokerName;

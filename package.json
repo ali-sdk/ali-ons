@@ -7,12 +7,13 @@
     "lib"
   ],
   "scripts": {
-    "autod": "autod",
+    "autod": "autod --check",
+    "pkgfiles": "egg-bin pkgfiles --check",
     "lint": "eslint . --ext .js",
     "test": "npm run lint && npm run test-local",
     "test-local": "egg-bin test",
     "cov": "TEST_TIMEOUT=60000 egg-bin cov",
-    "ci": "npm run lint && npm run cov",
+    "ci": "npm run autod && npm run pkgfiles && npm run lint && npm run cov",
     "contributors": "contributors -f plain -o AUTHORS"
   },
   "repository": {
@@ -33,6 +34,7 @@
   "dependencies": {
     "JSON2": "^0.1.0",
     "address": "^1.0.3",
+    "binary-search-insert": "^1.0.3",
     "byte": "^1.2.0",
     "bytes": "^3.0.0",
     "chalk": "^2.1.0",
@@ -43,6 +45,7 @@
     "is-type-of": "^1.2.0",
     "long": "^3.2.0",
     "mkdirp": "^0.5.1",
+    "mz-modules": "^2.0.0",
     "osenv": "^0.1.4",
     "sdk-base": "^3.3.0",
     "tcp-base": "^3.0.0",
@@ -52,18 +55,12 @@
     "autod": "^2.9.0",
     "contributors": "^0.5.1",
     "egg-bin": "^4.3.3",
-    "egg-ci": "^1.8.0",
     "eslint": "^4.7.2",
     "eslint-config-egg": "^5.1.1",
     "mm": "^2.2.0",
-    "pedding": "^1.1.0",
-    "rimraf": "^2.6.2",
     "urllib": "^2.25.0"
   },
   "engines": {
     "node": ">= 6.0.0"
-  },
-  "ci": {
-    "version": "6, 8"
   }
 }
