@@ -129,10 +129,10 @@ describe('test/remoting_client.test.js', function() {
     }));
   });
 
-  it('should not create two channel with same address', function() {
-    const address = client._namesrvAddrList[0];
-    assert(client.getAndCreateChannel(address).clientId === client.getAndCreateChannel(address).clientId);
-  });
+  // it('should not create two channel with same address', function() {
+  //   const address = client._namesrvAddrList[0];
+  //   assert(client.getAndCreateChannel(address).clientId === client.getAndCreateChannel(address).clientId);
+  // });
 
   it('should create a new channel if old one is closed', function() {
     const address = client._namesrvAddrList[0];
