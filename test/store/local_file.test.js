@@ -1,7 +1,7 @@
 'use strict';
 
 const assert = require('assert');
-const urllib = require('urllib');
+const httpclient = require('urllib');
 const MQClient = require('../../lib/mq_client');
 const ClientConfig = require('../../lib/client_config');
 const MessageQueue = require('../../lib/message_queue');
@@ -12,7 +12,7 @@ describe('test/store/local_file.test.js', function() {
   before(function* () {
     const client = new MQClient(new ClientConfig({
       instanceName: Date.now() + '',
-      urllib,
+      httpclient,
     }));
     yield client.ready();
     this.store = new LocalFileOffsetStore(client, 'please_rename_unique_group_name_1');

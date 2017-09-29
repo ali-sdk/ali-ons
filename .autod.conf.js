@@ -7,13 +7,12 @@ module.exports = {
   devdep: [
     'autod',
     'egg-bin',
-    'egg-ci',
     'contributors',
     'eslint',
     'eslint-config-egg'
   ],
   exclude: [
-    '_lib',
+    'coverage',
   ],
   test: [
     'test'
