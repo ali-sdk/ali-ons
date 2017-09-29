@@ -33,6 +33,10 @@ describe('test/index.test.js', () => {
         isBroadcast: true,
       }, config));
       yield consumer.ready();
+
+      consumer.subscribe('TEST_TOPIC', function* (msg) {
+        console.log('message receive ------------> ', msg.body.toString());
+      });
     });
 
     after(function* () {
@@ -136,16 +140,68 @@ describe('test/index.test.js', () => {
       }).then(() => console.log('over')).catch(err => console.log(err));
     });
 
-    it.skip('should updateProcessQueueTableInRebalance ok', function* () {
-      consumer.subscribe('ALIPUSH_DISPATCH', '*', function* (msg) {
-        console.log('message receive ------------> ', msg.body.toString());
-      });
-      yield sleep(5000);
-      yield consumer.updateProcessQueueTableInRebalance('xxx', []);
-      assert(consumer.processQueueTable.size > 0);
+    it('should updateProcessQueueTableInRebalance ok', function* () {
+      yield consumer.rebalanceByTopic('TEST_TOPIC');
+      const size = consumer.processQueueTable.size;
+      assert(size > 0);
 
-      yield consumer.updateProcessQueueTableInRebalance('ALIPUSH_DISPATCH', []);
-      assert(consumer.processQueueTable.size > 0);
+      const key = Array.from(consumer.processQueueTable.keys())[0];
+      const obj = consumer.processQueueTable.get(key);
+      const processQueue = obj.processQueue;
+      processQueue.lastPullTimestamp = 10000;
+
+      yield consumer.rebalanceByTopic('TEST_TOPIC');
+      assert(consumer.processQueueTable.size === size);
+
+      yield consumer.updateProcessQueueTableInRebalance('TEST_TOPIC', []);
+      assert(consumer.processQueueTable.size === 0);
+    });
+
+    it('should computePullFromWhere ok', function* () {
+      mm(consumer._offsetStore, 'readOffset', function* () {
+        return -1;
+      });
+      mm(consumer, 'consumeFromWhere', 'CONSUME_FROM_LAST_OFFSET');
+
+      let offset = yield consumer.computePullFromWhere({
+        topic: '%RETRY%__',
+      });
+      assert(offset === 0);
+
+      mm(consumer, 'consumeFromWhere', 'CONSUME_FROM_TIMESTAMP');
+      mm(consumer._mqClient, 'maxOffset', function* () {
+        return 1000;
+      });
+      offset = yield consumer.computePullFromWhere({
+        topic: '%RETRY%__',
+      });
+      assert(offset === 1000);
+
+      mm.error(consumer._mqClient, 'maxOffset');
+      offset = yield consumer.computePullFromWhere({
+        topic: '%RETRY%__',
+      });
+      assert(offset === -1);
+
+      mm(consumer._offsetStore, 'readOffset', function* () {
+        return 100;
+      });
+      offset = yield consumer.computePullFromWhere({
+        topic: 'TP',
+      });
+      assert(offset === 100);
+
+      mm(consumer, 'consumeFromWhere', 'CONSUME_FROM_FIRST_OFFSET');
+      offset = yield consumer.computePullFromWhere({
+        topic: 'TP',
+      });
+      assert(offset === 100);
+
+      mm(consumer, 'consumeFromWhere', 'NOT_EXISTS');
+      offset = yield consumer.computePullFromWhere({
+        topic: 'TP',
+      });
+      assert(offset === -1);
     });
   });
 
@@ -170,6 +226,7 @@ describe('test/index.test.js', () => {
             httpclient,
             consumeFromWhere,
             isBroadcast: true,
+            persistent: true,
             rebalanceInterval: 2000,
           }, config));
           producer = new Producer(Object.assign({

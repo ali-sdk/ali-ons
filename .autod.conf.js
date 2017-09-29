@@ -11,7 +11,9 @@ module.exports = {
     'eslint',
     'eslint-config-egg'
   ],
-  exclude: [],
+  exclude: [
+    'coverage',
+  ],
   test: [
     'test'
   ],
