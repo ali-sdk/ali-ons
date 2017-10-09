@@ -240,6 +240,11 @@ describe('test/index.test.js', () => {
 
         after(function* () {
           yield producer.close();
+          const originFn = consumer._offsetStore.persistAll;
+          mm(consumer._offsetStore, 'persistAll', function* (mqs) {
+            assert(mqs && mqs.length);
+            return yield originFn.call(consumer._offsetStore, mqs);
+          });
           yield consumer.close();
         });
 
