@@ -55,7 +55,7 @@
     "autod": "^2.9.0",
     "contributors": "^0.5.1",
     "egg-bin": "^4.3.3",
-    "eslint": "^4.7.2",
+    "eslint": "^4.8.0",
     "eslint-config-egg": "^5.1.1",
     "mm": "^2.2.0",
     "urllib": "^2.25.0"
