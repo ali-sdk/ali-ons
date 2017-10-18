@@ -3,11 +3,11 @@
 const co = require('co');
 const logger = require('./logger');
 const config = require('./config');
-const urllib = require('urllib');
+const httpclient = require('urllib');
 const Producer = require('../').Producer;
 const Message = require('../').Message;
 
-const producer = new Producer(Object.assign({ urllib, logger }, config));
+const producer = new Producer(Object.assign({ httpclient, logger }, config));
 co(function*() {
   yield producer.ready();
   const msg = new Message(config.topic, // topic

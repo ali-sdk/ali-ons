@@ -54,10 +54,12 @@ producer
 ```js
 'use strict';
 
+const httpclient = require('urllib');
 const Producer = require('ali-ons').Producer;
 const Message = require('ali-ons').Message;
 
 const producer = new Producer({
+  httpclient,
   accessKey: 'your-accesskey',
   secretKey: 'your-secretkey',
   producerGroup: 'your-producer-group',
