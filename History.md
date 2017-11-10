@@ -1,4 +1,10 @@
 
+2.0.3 / 2017-11-11
+==================
+
+  * fix: memory leak may occurred cause by Promise.race
+  * doc: fix consumer and producer initialize issue
+
 2.0.2 / 2017-10-09
 ==================
 
