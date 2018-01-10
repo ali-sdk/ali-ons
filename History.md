@@ -1,4 +1,13 @@
 
+2.0.4 / 2018-01-10
+==================
+
+**fixes**
+  * [[`6f78013`](http://github.com/ali-sdk/ali-ons/commit/6f780131b713465827588ac3ee866b9e2b2bd2ae)] - fix: fix invokeOneWay issue (gxcsoccer <<gxcsoccer@126.com>>)
+
+**others**
+  * [[`46d1bfe`](http://github.com/ali-sdk/ali-ons/commit/46d1bfe4cd5af83aa814d2a6dfd490efde5172bc)] - chore: release 2.0.3 (gxcsoccer <<gxcsoccer@126.com>>),
+
 2.0.3 / 2017-11-11
 ==================
 
