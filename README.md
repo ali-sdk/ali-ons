@@ -53,7 +53,7 @@ producer
 
 ```js
 'use strict';
-
+const co = require('co');
 const httpclient = require('urllib');
 const Producer = require('ali-ons').Producer;
 const Message = require('ali-ons').Message;
@@ -65,15 +65,18 @@ const producer = new Producer({
   producerGroup: 'your-producer-group',
 });
 
-producer.ready(() => {
-  console.log('producer ready');
+co(function*() {
   const msg = new Message('your-topic', // topic
     'TagA', // tag
     'Hello ONS !!! ' // body
   );
 
-  producer.send(msg, (err, sendResult) => console.log(err, sendResult));
-});
+  // set Message#keys
+  msg.keys = ['key1'];
+
+  const sendResult = yield producer.send(msg);
+  console.log(sendResult);
+}).catch(err => console.error(err))
 ```
 
 ## License
