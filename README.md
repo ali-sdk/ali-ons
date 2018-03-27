@@ -42,7 +42,7 @@ const consumer = new Consumer({
   // isBroadcast: true,
 });
 
-consumer.subscribe(config.topic, '*', function*(msg) {
+consumer.subscribe(config.topic, '*', async msg => {
   console.log(`receive message, msgId: ${msg.msgId}, body: ${msg.body.toString()}`)
 });
 
