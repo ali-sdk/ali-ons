@@ -29,9 +29,9 @@ describe('test/channel.test.js', function() {
 
   afterEach(mm.restore);
 
-  it('should connect ok', function* () {
+  it('should connect ok', () => {
     const channel = new Channel(address);
-    yield channel.ready();
+    return channel.ready();
   });
 
   it('should close ok', done => {
@@ -50,10 +50,10 @@ describe('test/channel.test.js', function() {
     });
   });
 
-  it('should invoke ok', function* () {
+  it('should invoke ok', async () => {
     const channel = new Channel(address, config);
-    yield channel.ready();
-    const res = yield channel.invoke(new RemotingCommand({
+    await channel.ready();
+    const res = await channel.invoke(new RemotingCommand({
       code: RequestCode.GET_ROUTEINTO_BY_TOPIC,
       customHeader: {
         topic: 'TEST_TOPIC',
@@ -64,9 +64,9 @@ describe('test/channel.test.js', function() {
     channel.close();
   });
 
-  it('should invoke ok though channel not ready', function* () {
+  it('should invoke ok though channel not ready', async () => {
     const channel = new Channel(address);
-    const res = yield channel.invoke(new RemotingCommand({
+    const res = await channel.invoke(new RemotingCommand({
       code: RequestCode.GET_ROUTEINTO_BY_TOPIC,
       customHeader: {
         topic: 'TEST_TOPIC',
@@ -77,16 +77,16 @@ describe('test/channel.test.js', function() {
     channel.close();
   });
 
-  it('should invoke oneway ok', function* () {
+  it('should invoke oneway ok', async () => {
     const channel = new Channel(address);
-    yield channel.invokeOneway(new RemotingCommand({
+    await channel.invokeOneway(new RemotingCommand({
       code: RequestCode.GET_KV_CONFIG_BY_VALUE,
       customHeader: {
         namespace: 'PROJECT_CONFIG',
         key: localIp,
       },
     }));
-    yield channel.ready();
+    await channel.ready();
   });
 
   // it('should emit error if connect failed', function(done) {
@@ -103,10 +103,10 @@ describe('test/channel.test.js', function() {
   //   });
   // });
 
-  it('should get error response', function* () {
+  it('should get error response', async () => {
     const channel = new Channel('100.100.100.100:9876');
     try {
-      yield channel.invoke(new RemotingCommand({
+      await channel.invoke(new RemotingCommand({
         code: RequestCode.GET_KV_CONFIG_BY_VALUE,
         customHeader: {
           namespace: 'PROJECT_CONFIG',
@@ -134,13 +134,13 @@ describe('test/channel.test.js', function() {
   //   channel.close();
   // });
 
-  it('should clearupInvokes after connection close', function* () {
+  it('should clearupInvokes after connection close', async () => {
     const channel = new Channel(address);
-    yield channel.ready();
+    await channel.ready();
     channel.close();
     let isError = false;
     try {
-      yield channel.invoke(new RemotingCommand({
+      await channel.invoke(new RemotingCommand({
         code: RequestCode.GET_ROUTEINTO_BY_TOPIC,
         customHeader: {
           topic: 'NOT_EXISTS',
@@ -170,17 +170,17 @@ describe('test/channel.test.js', function() {
   //   channel.close();
   // });
 
-  it('should invoke response ok', function* () {
+  it('should invoke response ok', async () => {
     const channel = new Channel(address);
-    yield channel.ready();
-    yield channel.invokeOneway(RemotingCommand.createResponseCommand(ResponseCode.SUCCESS, 1, ''));
+    await channel.ready();
+    await channel.invokeOneway(RemotingCommand.createResponseCommand(ResponseCode.SUCCESS, 1, ''));
   });
 
-  it('should throw error if invoke timeout', function* () {
+  it('should throw error if invoke timeout', async () => {
     const channel = new Channel(address);
     let isError = false;
     try {
-      yield channel.invoke(new RemotingCommand({
+      await channel.invoke(new RemotingCommand({
         code: RequestCode.GET_KV_CONFIG_BY_VALUE,
         customHeader: {
           namespace: 'PROJECT_CONFIG',
