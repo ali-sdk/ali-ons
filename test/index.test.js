@@ -33,7 +33,7 @@ describe('test/index.test.js', () => {
       }, config));
       await consumer.ready();
 
-      consumer.subscribe('TEST_TOPIC', function* (msg) {
+      consumer.subscribe('TEST_TOPIC', async msg => {
         console.log('message receive ------------> ', msg.body.toString());
       });
     });
@@ -64,7 +64,7 @@ describe('test/index.test.js', () => {
       let sendResult = await producer.send(msg);
       assert(sendResult && sendResult.msgId);
 
-      mm(producer, 'sendKernelImpl', function* () {
+      mm(producer, 'sendKernelImpl', async () => {
         mm.restore();
         const err = new Error('mock err');
         err.name = 'MQClientException';
@@ -186,7 +186,7 @@ describe('test/index.test.js', () => {
       });
       assert(offset === -1);
 
-      mm(consumer._offsetStore, 'readOffset', function* () {
+      mm(consumer._offsetStore, 'readOffset', async () => {
         return 100;
       });
       offset = await consumer.computePullFromWhere({
@@ -254,7 +254,7 @@ describe('test/index.test.js', () => {
 
         it('should subscribe message ok', async () => {
           let msgId;
-          consumer.subscribe('TEST_TOPIC', 'TagA', function* (msg) {
+          consumer.subscribe('TEST_TOPIC', 'TagA', async msg => {
             console.log('message receive ------------> ', msg.body.toString());
             assert(msg.tags !== 'TagB');
             if (msg.msgId === msgId) {
