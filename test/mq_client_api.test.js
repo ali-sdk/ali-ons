@@ -7,28 +7,26 @@ const MQClientAPI = require('../lib/mq_client_api');
 
 describe('test/mq_client_api.test.js', function() {
   let client;
-  before(function* () {
+  before(() => {
     client = new MQClientAPI(Object.assign({ httpclient }, require('../example/config')));
-    yield client.ready();
+    return client.ready();
   });
 
-  after(function* () {
-    yield client.close();
+  after(() => client.close());
+
+  it('should getProjectGroupByIp ok', () => {
+    return client.getProjectGroupByIp(address.ip(), 3000);
   });
 
-  it('should getProjectGroupByIp ok', function* () {
-    yield client.getProjectGroupByIp(address.ip(), 3000);
-  });
-
-  it('should getDefaultTopicRouteInfoFromNameServer ok', function* () {
-    const res = yield client.getDefaultTopicRouteInfoFromNameServer('TEST_TOPIC', 3000);
+  it('should getDefaultTopicRouteInfoFromNameServer ok', async () => {
+    const res = await client.getDefaultTopicRouteInfoFromNameServer('TEST_TOPIC', 3000);
     assert(res);
   });
 
-  it('should getDefaultTopicRouteInfoFromNameServer for exception', function* () {
+  it('should getDefaultTopicRouteInfoFromNameServer for exception', async () => {
     let isError = false;
     try {
-      yield client.getDefaultTopicRouteInfoFromNameServer('NOT_EXIST_TOPIC', 3000);
+      await client.getDefaultTopicRouteInfoFromNameServer('NOT_EXIST_TOPIC', 3000);
     } catch (err) {
       isError = true;
       assert(err.name === 'MQClientException');

@@ -9,75 +9,75 @@ const LocalMemoryOffsetStore = require('../../lib/store/local_memory');
 describe('test/store/local_file.test.js', () => {
   let offsetStore;
   const groupName = 'S_appname_service';
-  before(function* () {
+  before(() => {
     offsetStore = new LocalMemoryOffsetStore({
       logger: console,
     }, groupName);
   });
   beforeEach(mm.restore);
 
-  it('should updateOffset & readOffset ok', function* () {
+  it('should updateOffset & readOffset ok', async () => {
     const mq = new MessageQueue('TopicTest_1', 'taobaodaily-04', 1);
     offsetStore.updateOffset(mq, 1000, false);
-    let offset = yield offsetStore.readOffset(mq, ReadOffsetType.MEMORY_FIRST_THEN_STORE);
+    let offset = await offsetStore.readOffset(mq, ReadOffsetType.MEMORY_FIRST_THEN_STORE);
     assert(offset === 1000);
-    offset = yield offsetStore.readOffset(mq, ReadOffsetType.READ_FROM_MEMORY);
+    offset = await offsetStore.readOffset(mq, ReadOffsetType.READ_FROM_MEMORY);
     assert(offset === 1000);
-    offset = yield offsetStore.readOffset(mq, ReadOffsetType.READ_FROM_STORE);
+    offset = await offsetStore.readOffset(mq, ReadOffsetType.READ_FROM_STORE);
     assert(offset === 1000);
 
-    yield offsetStore.persist(mq);
-    offset = yield offsetStore.readOffset(mq, ReadOffsetType.READ_FROM_STORE);
+    await offsetStore.persist(mq);
+    offset = await offsetStore.readOffset(mq, ReadOffsetType.READ_FROM_STORE);
     assert(offset === 1000);
 
     const mq2 = new MessageQueue('TopicTest_1', 'taobaodaily-04', 2);
-    yield offsetStore.persistAll([ mq, mq2 ]);
-    offset = yield offsetStore.readOffset(mq, ReadOffsetType.READ_FROM_STORE);
+    await offsetStore.persistAll([ mq, mq2 ]);
+    offset = await offsetStore.readOffset(mq, ReadOffsetType.READ_FROM_STORE);
     assert(offset === 1000);
   });
 
-  it('should updateOffset increaseOnly', function* () {
+  it('should updateOffset increaseOnly', async () => {
     const mq = new MessageQueue('TopicTest_1', 'taobaodaily-04', 1);
     offsetStore.updateOffset(mq, 1000, false);
-    let offset = yield offsetStore.readOffset(mq, ReadOffsetType.READ_FROM_MEMORY);
+    let offset = await offsetStore.readOffset(mq, ReadOffsetType.READ_FROM_MEMORY);
     assert(offset === 1000);
 
     offsetStore.updateOffset();
     offsetStore.updateOffset(mq, 999, true);
-    offset = yield offsetStore.readOffset(mq, ReadOffsetType.READ_FROM_MEMORY);
+    offset = await offsetStore.readOffset(mq, ReadOffsetType.READ_FROM_MEMORY);
     assert(offset === 1000);
 
     offsetStore.updateOffset(mq, 999, false);
-    offset = yield offsetStore.readOffset(mq, ReadOffsetType.READ_FROM_MEMORY);
+    offset = await offsetStore.readOffset(mq, ReadOffsetType.READ_FROM_MEMORY);
     assert(offset === 999);
 
-    offset = yield offsetStore.readOffset(null, ReadOffsetType.READ_FROM_MEMORY);
+    offset = await offsetStore.readOffset(null, ReadOffsetType.READ_FROM_MEMORY);
     assert(offset === -1);
-    offset = yield offsetStore.readOffset(null, ReadOffsetType.MEMORY_FIRST_THEN_STORE);
+    offset = await offsetStore.readOffset(null, ReadOffsetType.MEMORY_FIRST_THEN_STORE);
     assert(offset === -1);
-    offset = yield offsetStore.readOffset(null, ReadOffsetType.READ_FROM_STORE);
+    offset = await offsetStore.readOffset(null, ReadOffsetType.READ_FROM_STORE);
     assert(offset === -1);
-    offset = yield offsetStore.readOffset(mq);
+    offset = await offsetStore.readOffset(mq);
     assert(offset === -1);
   });
 
-  it('should load ok', function* () {
+  it('should load ok', async () => {
     const mq = new MessageQueue('TopicTest_1', 'taobaodaily-04', 1);
     offsetStore.updateOffset(mq, 1000, false);
 
     const offsetStore2 = new LocalMemoryOffsetStore({
       logger: console,
     }, groupName);
-    let offset = yield offsetStore2.readOffset(mq, ReadOffsetType.READ_FROM_MEMORY);
+    let offset = await offsetStore2.readOffset(mq, ReadOffsetType.READ_FROM_MEMORY);
     assert(offset === -1);
-    yield offsetStore2.load();
-    offset = yield offsetStore2.readOffset(mq, ReadOffsetType.READ_FROM_MEMORY);
+    await offsetStore2.load();
+    offset = await offsetStore2.readOffset(mq, ReadOffsetType.READ_FROM_MEMORY);
     assert(offset === -1);
 
     offsetStore.removeOffset(mq);
-    offset = yield offsetStore.readOffset(mq, ReadOffsetType.READ_FROM_MEMORY);
+    offset = await offsetStore.readOffset(mq, ReadOffsetType.READ_FROM_MEMORY);
     assert(offset === -1);
-    offset = yield offsetStore.readOffset(mq, ReadOffsetType.READ_FROM_STORE);
+    offset = await offsetStore.readOffset(mq, ReadOffsetType.READ_FROM_STORE);
     assert(offset === -1);
   });
 });

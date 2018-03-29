@@ -1,7 +1,6 @@
 'use strict';
 
 const mm = require('mm');
-const co = require('co');
 const path = require('path');
 const osenv = require('osenv');
 const assert = require('assert');
@@ -20,28 +19,28 @@ describe('test/index.test.js', () => {
   describe('API', () => {
     let producer;
     let consumer;
-    before(function* () {
+    before(async () => {
       producer = new Producer(Object.assign({
         httpclient,
         retryAnotherBrokerWhenNotStoreOK: true,
         compressMsgBodyOverHowmuch: 10,
       }, config));
-      yield producer.ready();
+      await producer.ready();
       consumer = new Consumer(Object.assign({
         httpclient,
         rebalanceInterval: 1000,
         isBroadcast: true,
       }, config));
-      yield consumer.ready();
+      await consumer.ready();
 
-      consumer.subscribe('TEST_TOPIC', function* (msg) {
+      consumer.subscribe('TEST_TOPIC', async msg => {
         console.log('message receive ------------> ', msg.body.toString());
       });
     });
 
-    after(function* () {
-      yield producer.close();
-      yield consumer.close();
+    after(async () => {
+      await producer.close();
+      await consumer.close();
     });
 
     afterEach(mm.restore);
@@ -50,8 +49,8 @@ describe('test/index.test.js', () => {
     //   yield producer.createTopic('TBW102', 'XXX', 8);
     // });
 
-    it('should select another broker if one failed', function* () {
-      mm(producer, 'sendKernelImpl', function* () {
+    it('should select another broker if one failed', async () => {
+      mm(producer, 'sendKernelImpl', async () => {
         mm.restore();
         return {
           sendStatus: 'FLUSH_DISK_TIMEOUT',
@@ -62,34 +61,34 @@ describe('test/index.test.js', () => {
         'Hello TagA !!! ' // body
       );
 
-      let sendResult = yield producer.send(msg);
+      let sendResult = await producer.send(msg);
       assert(sendResult && sendResult.msgId);
 
-      mm(producer, 'sendKernelImpl', function* () {
+      mm(producer, 'sendKernelImpl', async () => {
         mm.restore();
         const err = new Error('mock err');
         err.name = 'MQClientException';
         err.code = 205;
         throw err;
       });
-      sendResult = yield producer.send(msg);
+      sendResult = await producer.send(msg);
       assert(sendResult && sendResult.msgId);
     });
 
-    it('should tryToFindTopicPublishInfo if brokerAddr not found', function* () {
+    it('should tryToFindTopicPublishInfo if brokerAddr not found', async () => {
       const msg = new Message('TEST_TOPIC', // topic
         'TagA', // tag
         'Hello TagA !!! ' // body
       );
 
-      let sendResult = yield producer.send(msg);
+      let sendResult = await producer.send(msg);
       assert(sendResult && sendResult.msgId);
 
       mm(producer._mqClient, 'findBrokerAddressInPublish', () => {
         mm.restore();
         return null;
       });
-      sendResult = yield producer.send(msg);
+      sendResult = await producer.send(msg);
       assert(sendResult && sendResult.msgId);
 
       mm(producer._mqClient, 'findBrokerAddressInPublish', () => {
@@ -98,7 +97,7 @@ describe('test/index.test.js', () => {
 
       let isError = false;
       try {
-        yield producer.send(msg);
+        await producer.send(msg);
       } catch (err) {
         isError = true;
         assert(/The broker\[.+\] not exist/i.test(err.message));
@@ -109,7 +108,7 @@ describe('test/index.test.js', () => {
 
       isError = false;
       try {
-        yield producer.send(new Message('%RETRY%TEST_TOPIC', // topic
+        await producer.send(new Message('%RETRY%TEST_TOPIC', // topic
           'TagA', // tag
           'Hello TagA !!! ' // body
         ));
@@ -133,15 +132,19 @@ describe('test/index.test.js', () => {
         assert(err.name === 'MetaQCompressError');
         done();
       });
-
-      co(function* () {
-        const sendResult = yield producer.send(msg);
-        assert(sendResult && sendResult.msgId);
-      }).then(() => console.log('over')).catch(err => console.log(err));
+      (async () => {
+        try {
+          const sendResult = await producer.send(msg);
+          assert(sendResult && sendResult.msgId);
+          console.log('over');
+        } catch (err) {
+          console.log(err);
+        }
+      })();
     });
 
-    it('should updateProcessQueueTableInRebalance ok', function* () {
-      yield consumer.rebalanceByTopic('TEST_TOPIC');
+    it('should updateProcessQueueTableInRebalance ok', async () => {
+      await consumer.rebalanceByTopic('TEST_TOPIC');
       const size = consumer.processQueueTable.size;
       assert(size > 0);
 
@@ -150,55 +153,55 @@ describe('test/index.test.js', () => {
       const processQueue = obj.processQueue;
       processQueue.lastPullTimestamp = 10000;
 
-      yield consumer.rebalanceByTopic('TEST_TOPIC');
+      await consumer.rebalanceByTopic('TEST_TOPIC');
       assert(consumer.processQueueTable.size === size);
 
-      yield consumer.updateProcessQueueTableInRebalance('TEST_TOPIC', []);
+      await consumer.updateProcessQueueTableInRebalance('TEST_TOPIC', []);
       assert(consumer.processQueueTable.size === 0);
     });
 
-    it('should computePullFromWhere ok', function* () {
-      mm(consumer._offsetStore, 'readOffset', function* () {
+    it('should computePullFromWhere ok', async () => {
+      mm(consumer._offsetStore, 'readOffset', async () => {
         return -1;
       });
       mm(consumer, 'consumeFromWhere', 'CONSUME_FROM_LAST_OFFSET');
 
-      let offset = yield consumer.computePullFromWhere({
+      let offset = await consumer.computePullFromWhere({
         topic: '%RETRY%__',
       });
       assert(offset === 0);
 
       mm(consumer, 'consumeFromWhere', 'CONSUME_FROM_TIMESTAMP');
-      mm(consumer._mqClient, 'maxOffset', function* () {
+      mm(consumer._mqClient, 'maxOffset', async () => {
         return 1000;
       });
-      offset = yield consumer.computePullFromWhere({
+      offset = await consumer.computePullFromWhere({
         topic: '%RETRY%__',
       });
       assert(offset === 1000);
 
       mm.error(consumer._mqClient, 'maxOffset');
-      offset = yield consumer.computePullFromWhere({
+      offset = await consumer.computePullFromWhere({
         topic: '%RETRY%__',
       });
       assert(offset === -1);
 
-      mm(consumer._offsetStore, 'readOffset', function* () {
+      mm(consumer._offsetStore, 'readOffset', async () => {
         return 100;
       });
-      offset = yield consumer.computePullFromWhere({
+      offset = await consumer.computePullFromWhere({
         topic: 'TP',
       });
       assert(offset === 100);
 
       mm(consumer, 'consumeFromWhere', 'CONSUME_FROM_FIRST_OFFSET');
-      offset = yield consumer.computePullFromWhere({
+      offset = await consumer.computePullFromWhere({
         topic: 'TP',
       });
       assert(offset === 100);
 
       mm(consumer, 'consumeFromWhere', 'NOT_EXISTS');
-      offset = yield consumer.computePullFromWhere({
+      offset = await consumer.computePullFromWhere({
         topic: 'TP',
       });
       assert(offset === -1);
@@ -221,7 +224,7 @@ describe('test/index.test.js', () => {
         before(() => {
           return rimraf(localOffsetStoreDir);
         });
-        before(function* () {
+        before(async () => {
           consumer = new Consumer(Object.assign({
             httpclient,
             consumeFromWhere,
@@ -232,27 +235,26 @@ describe('test/index.test.js', () => {
           producer = new Producer(Object.assign({
             httpclient,
           }, config));
-          yield [
-            consumer.ready(),
-            producer.ready(),
-          ];
+
+          await consumer.ready();
+          await producer.ready();
         });
 
-        after(function* () {
-          yield producer.close();
+        after(async () => {
+          await producer.close();
           const originFn = consumer._offsetStore.persistAll;
-          mm(consumer._offsetStore, 'persistAll', function* (mqs) {
+          mm(consumer._offsetStore, 'persistAll', async mqs => {
             assert(mqs && mqs.length);
-            return yield originFn.call(consumer._offsetStore, mqs);
+            return await originFn.call(consumer._offsetStore, mqs);
           });
-          yield consumer.close();
+          await consumer.close();
         });
 
         afterEach(mm.restore);
 
-        it('should subscribe message ok', function* () {
+        it('should subscribe message ok', async () => {
           let msgId;
-          consumer.subscribe('TEST_TOPIC', 'TagA', function* (msg) {
+          consumer.subscribe('TEST_TOPIC', 'TagA', async msg => {
             console.log('message receive ------------> ', msg.body.toString());
             assert(msg.tags !== 'TagB');
             if (msg.msgId === msgId) {
@@ -261,35 +263,35 @@ describe('test/index.test.js', () => {
             }
           });
 
-          yield sleep(5000);
+          await sleep(5000);
 
           let msg = new Message('TEST_TOPIC', // topic
             'TagB', // tag
             'Hello MetaQ !!! ' // body
           );
-          let sendResult = yield producer.send(msg);
+          let sendResult = await producer.send(msg);
           assert(sendResult && sendResult.msgId);
           msg = new Message('TEST_TOPIC', // topic
             'TagA', // tag
             'Hello MetaQ !!! ' // body
           );
-          sendResult = yield producer.send(msg);
+          sendResult = await producer.send(msg);
           assert(sendResult && sendResult.msgId);
           msgId = sendResult.msgId;
-          yield consumer.await('TagA');
+          await consumer.await('TagA');
         });
 
-        it.skip('should viewMessage ok', function* () {
+        it.skip('should viewMessage ok', async () => {
           const msg = new Message('TEST_TOPIC', // topic
             'TagA', // tag
             'Hello MetaQ !!! ' // body
           );
-          const sendResult = yield producer.send(msg);
+          const sendResult = await producer.send(msg);
           assert(sendResult && sendResult.msgId);
 
-          yield sleep(3000);
+          await sleep(3000);
 
-          const message = yield consumer.viewMessage(sendResult.msgId);
+          const message = await consumer.viewMessage(sendResult.msgId);
           assert(message.body.toString() === 'Hello MetaQ !!! ');
         });
       });
@@ -301,53 +303,53 @@ describe('test/index.test.js', () => {
     const topic = 'TEST_TOPIC';
     let consumer;
     let producer;
-    before(function* () {
+    before(async () => {
       consumer = new Consumer(Object.assign({
         httpclient,
         isBroadcast: false,
       }, config));
-      yield consumer.ready();
+      await consumer.ready();
       producer = new Producer(Object.assign({
         httpclient,
       }, config));
-      yield producer.ready();
+      await producer.ready();
     });
 
-    after(function* () {
-      yield consumer.close();
-      yield producer.close();
+    after(async () => {
+      await consumer.close();
+      await producer.close();
     });
 
     afterEach(mm.restore);
 
-    it('should subscribe message ok', function* () {
-      yield sleep(5000);
+    it('should subscribe message ok', async () => {
+      await sleep(5000);
 
       const msg = new Message(topic, // topic
         'TagA', // tag
         'Hello MetaQ !!! ' // body
       );
-      const sendResult = yield producer.send(msg);
+      const sendResult = await producer.send(msg);
       assert(sendResult && sendResult.msgId);
 
       const msgId = sendResult.msgId;
       console.log(sendResult);
 
-      yield cb => {
-        consumer.subscribe(topic, '*', function* (msg) {
+      await new Promise(r => {
+        consumer.subscribe(topic, '*', async () => {
           if (msg.msgId === msgId) {
             assert(msg.body.toString() === 'Hello MetaQ !!! ');
-            cb();
+            r();
           }
         });
-      };
+      });
     });
   });
 
   describe('process exception', () => {
     let consumer;
     let producer;
-    before(function* () {
+    before(async () => {
       consumer = new Consumer(Object.assign({
         httpclient,
         rebalanceInterval: 2000,
@@ -355,20 +357,18 @@ describe('test/index.test.js', () => {
       producer = new Producer(Object.assign({
         httpclient,
       }, config));
-      yield [
-        consumer.ready(),
-        producer.ready(),
-      ];
+      await consumer.ready();
+      await producer.ready();
     });
 
-    after(function* () {
-      yield producer.close();
-      yield consumer.close();
+    after(async () => {
+      await producer.close();
+      await consumer.close();
     });
 
-    it('should retry if process failed', function* () {
+    it('should retry if process failed', async () => {
       let msgId;
-      consumer.subscribe('TEST_TOPIC', '*', function* (msg) {
+      consumer.subscribe('TEST_TOPIC', '*', async msg => {
         console.log('message receive ------------> ', msg.body.toString());
         if (msg.msgId === msgId) {
           assert(msg.body.toString() === 'Hello MetaQ !!! ');
@@ -379,24 +379,24 @@ describe('test/index.test.js', () => {
         }
       });
 
-      yield sleep(5000);
+      await sleep(5000);
 
       const msg = new Message('TEST_TOPIC', // topic
         'TagA', // tag
         'Hello MetaQ !!! ' // body
       );
-      const sendResult = yield producer.send(msg);
+      const sendResult = await producer.send(msg);
       assert(sendResult && sendResult.msgId);
       msgId = sendResult.msgId;
-      yield consumer.await('*');
+      await consumer.await('*');
     });
   });
 
   describe('flow control', () => {
     let consumer;
     let producer;
-    before(function* () {
-      yield rimraf(localOffsetStoreDir);
+    before(async () => {
+      await rimraf(localOffsetStoreDir);
       consumer = new Consumer(Object.assign({
         httpclient,
         isBroadcast: true,
@@ -408,33 +408,31 @@ describe('test/index.test.js', () => {
       producer = new Producer(Object.assign({
         httpclient,
       }, config));
-      yield [
-        consumer.ready(),
-        producer.ready(),
-      ];
+      await consumer.ready();
+      await producer.ready();
     });
 
-    after(function* () {
-      yield producer.close();
-      yield consumer.close();
+    after(async () => {
+      await producer.close();
+      await consumer.close();
     });
 
-    it('should retry if process failed', function* () {
+    it('should retry if process failed', async () => {
       let count = 20;
       while (count--) {
         const msg = new Message('TEST_TOPIC', // topic
           'TagA', // tag
           'Hello MetaQ !!! ' // body
         );
-        const sendResult = yield producer.send(msg);
+        const sendResult = await producer.send(msg);
         assert(sendResult && sendResult.msgId);
       }
 
-      consumer.subscribe('TEST_TOPIC', '*', function* (msg, mq, pq) {
+      consumer.subscribe('TEST_TOPIC', '*', async (msg, mq, pq) => {
         console.log('message receive ------------> ', msg.body.toString());
 
         const msgCount = pq.msgCount;
-        yield sleep(10000);
+        await sleep(10000);
 
         // 不再拉取
         try {
@@ -446,7 +444,7 @@ describe('test/index.test.js', () => {
         }
       });
 
-      yield Promise.race([
+      await Promise.race([
         consumer.await('over'),
         consumer.await('error'),
       ]);

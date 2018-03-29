@@ -9,20 +9,18 @@ describe('test/mq_client.test.js', () => {
   const config = new ClientConfig(Object.assign({ httpclient }, require('../example/config')));
 
   let client;
-  before(function* () {
+  before(() => {
     client = MQClient.getAndCreateMQClient(config);
-    yield client.ready();
+    return client.ready();
   });
 
-  after(function* () {
-    yield client.close();
-  });
+  after(async () => client.close());
 
   it('should mqclient is singleton', () => {
     assert(MQClient.getAndCreateMQClient(config) === client);
   });
 
-  it('should registerConsumer ok', function* () {
+  it('should registerConsumer ok', async () => {
     client.registerConsumer('please_rename_unique_group_name_1', {
       subscriptions: new Map(),
       updateTopicSubscribeInfo() {},
@@ -32,11 +30,11 @@ describe('test/mq_client.test.js', () => {
     assert(client._consumerTable.size === 1);
     client.registerConsumer('please_rename_unique_group_name_1', {});
     assert(client._consumerTable.size === 1);
-    yield client.unregisterConsumer('please_rename_unique_group_name_1');
+    await client.unregisterConsumer('please_rename_unique_group_name_1');
     assert(client._consumerTable.size === 0);
   });
 
-  it('should registerProducer ok', function* () {
+  it('should registerProducer ok', async () => {
     client.registerProducer('please_rename_unique_group_name_1', {
       publishTopicList: new Map(),
       updateTopicPublishInfo() {},
@@ -45,30 +43,30 @@ describe('test/mq_client.test.js', () => {
     assert(client._producerTable.size === 1);
     client.registerProducer('please_rename_unique_group_name_1', {});
     assert(client._producerTable.size === 1);
-    yield client.unregisterProducer('please_rename_unique_group_name_1');
+    await client.unregisterProducer('please_rename_unique_group_name_1');
     assert(client._producerTable.size === 0);
   });
 
-  it('should not close if there are producer or consumer', function* () {
+  it('should not close if there are producer or consumer', async () => {
     client.registerConsumer('please_rename_unique_group_name_1', {
       subscriptions: new Map(),
       updateTopicSubscribeInfo() {},
       isSubscribeTopicNeedUpdate() {},
       doRebalance() {},
     });
-    yield client.close();
-    yield client.unregisterConsumer('please_rename_unique_group_name_1');
+    await client.close();
+    await client.unregisterConsumer('please_rename_unique_group_name_1');
 
     client.registerProducer('please_rename_unique_group_name_1', {
       publishTopicList: new Map(),
       updateTopicPublishInfo() {},
       isPublishTopicNeedUpdate() {},
     });
-    yield client.close();
-    yield client.unregisterProducer('please_rename_unique_group_name_1');
+    await client.close();
+    await client.unregisterProducer('please_rename_unique_group_name_1');
   });
 
-  it('should updateAllTopicRouterInfo ok', function* () {
+  it('should updateAllTopicRouterInfo ok', async () => {
     const subscriptions = new Map();
     subscriptions.set('please_rename_unique_group_name_1', {
       topic: 'TopicTest',
@@ -94,13 +92,13 @@ describe('test/mq_client.test.js', () => {
 
     client.updateAllTopicRouterInfo();
 
-    yield client.unregisterConsumer('please_rename_unique_group_name_1');
-    yield client.unregisterProducer('please_rename_unique_group_name_1');
-    yield client.unregisterConsumer('xxx');
-    yield client.unregisterProducer('xxx');
+    await client.unregisterConsumer('please_rename_unique_group_name_1');
+    await client.unregisterProducer('please_rename_unique_group_name_1');
+    await client.unregisterConsumer('xxx');
+    await client.unregisterProducer('xxx');
   });
 
-  it('should updateTopicRouteInfoFromNameServer ok', function* () {
+  it('should updateTopicRouteInfoFromNameServer ok', async () => {
     client.registerConsumer('please_rename_unique_group_name_1', {
       subscriptions: new Map(),
       updateTopicSubscribeInfo() {},
@@ -112,16 +110,16 @@ describe('test/mq_client.test.js', () => {
       updateTopicPublishInfo() {},
       isPublishTopicNeedUpdate() {},
     });
-    yield client.updateTopicRouteInfoFromNameServer('TopicTest');
+    await client.updateTopicRouteInfoFromNameServer('TopicTest');
     let topicRouteData = client._topicRouteTable.get('TopicTest');
     assert(topicRouteData);
     assert(topicRouteData.brokerDatas.length > 0);
     assert(client._brokerAddrTable.size > 0);
 
-    yield client.unregisterConsumer('please_rename_unique_group_name_1');
-    yield client.unregisterProducer('please_rename_unique_group_name_1');
+    await client.unregisterConsumer('please_rename_unique_group_name_1');
+    await client.unregisterProducer('please_rename_unique_group_name_1');
 
-    yield client.updateTopicRouteInfoFromNameServer('TopicTest', true, {
+    await client.updateTopicRouteInfoFromNameServer('TopicTest', true, {
       createTopicKey: 'TopicTest',
       defaultTopicQueueNums: 8,
     });
@@ -186,8 +184,8 @@ describe('test/mq_client.test.js', () => {
     assert(!client._brokerAddrTable.has('fake-broker'));
   });
 
-  it('should sendHeartbeatToAllBroker ok', function* () {
-    yield client.sendHeartbeatToAllBroker();
+  it('should sendHeartbeatToAllBroker ok', async () => {
+    await client.sendHeartbeatToAllBroker();
     const subscriptions = new Map();
     subscriptions.set('please_rename_unique_group_name_1', {
       topic: 'TopicTest',
@@ -208,28 +206,28 @@ describe('test/mq_client.test.js', () => {
       updateTopicPublishInfo() {},
       isPublishTopicNeedUpdate() {},
     });
-    yield client.updateTopicRouteInfoFromNameServer('TopicTest');
+    await client.updateTopicRouteInfoFromNameServer('TopicTest');
 
     const topicRouteData = client._topicRouteTable.get('TopicTest');
     assert(topicRouteData);
     assert(topicRouteData.brokerDatas.length > 0);
     assert(client._brokerAddrTable.size > 0);
 
-    yield client.sendHeartbeatToAllBroker();
-    yield client.unregisterConsumer('please_rename_unique_group_name_1');
-    yield client.unregisterProducer('please_rename_unique_group_name_1');
+    await client.sendHeartbeatToAllBroker();
+    await client.unregisterConsumer('please_rename_unique_group_name_1');
+    await client.unregisterProducer('please_rename_unique_group_name_1');
   });
 
-  it('should persistAllConsumerOffset & doRebalance ok', function* () {
+  it('should persistAllConsumerOffset & doRebalance ok', async () => {
     client.registerConsumer('please_rename_unique_group_name_1', {
       //
-      * persistConsumerOffset() { console.log('persistConsumerOffset'); },
-      * doRebalance() { console.log('doRebalance'); },
+      async persistConsumerOffset() { console.log('persistConsumerOffset'); },
+      async doRebalance() { console.log('doRebalance'); },
     });
-    yield client.persistAllConsumerOffset();
-    yield client.doRebalance();
-    // yield this.client.notifyConsumerIdsChanged();
-    yield client.unregisterConsumer('please_rename_unique_group_name_1');
+    await client.persistAllConsumerOffset();
+    await client.doRebalance();
+    // await this.client.notifyConsumerIdsChanged();
+    await client.unregisterConsumer('please_rename_unique_group_name_1');
   });
 
   // it('should pull message ok', function(done) {
