@@ -100,7 +100,7 @@ describe('test/mq_client.test.js', () => {
     yield client.unregisterProducer('xxx');
   });
 
-  it('should updateTopicRouteInfoFromNameServer ok', function* () {
+  it.only('should updateTopicRouteInfoFromNameServer ok', function* () {
     client.registerConsumer('please_rename_unique_group_name_1', {
       subscriptions: new Map(),
       updateTopicSubscribeInfo() {},
