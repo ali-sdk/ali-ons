@@ -323,7 +323,7 @@ describe('test/index.test.js', () => {
     afterEach(mm.restore);
 
     it('should subscribe message ok', async () => {
-      await sleep(5000);
+      await sleep(3000);
 
       const msg = new Message(topic, // topic
         'TagA', // tag
@@ -336,7 +336,7 @@ describe('test/index.test.js', () => {
       console.log(sendResult);
 
       await new Promise(r => {
-        consumer.subscribe(topic, '*', async () => {
+        consumer.subscribe(topic, '*', async msg => {
           if (msg.msgId === msgId) {
             assert(msg.body.toString() === 'Hello MetaQ !!! ');
             r();

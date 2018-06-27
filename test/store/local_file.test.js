@@ -22,7 +22,7 @@ describe('test/store/local_file.test.js', function() {
     return this.store.load();
   });
 
-  it('should updateOffset ok', function() {
+  it('should updateOffset ok', () => {
     const mq = new MessageQueue('TopicTest_1', 'taobaodaily-04', 1);
     this.store.updateOffset(mq, 1000, true);
     assert(this.store.offsetTable.get('[topic="TopicTest_1", brokerName="taobaodaily-04", queueId="1"]') === 1000);
@@ -68,7 +68,7 @@ describe('test/store/local_file.test.js', function() {
     await this.store.persist(mq1);
   });
 
-  it('should removeOffset ok', function() {
+  it('should removeOffset ok', () => {
     const mq = new MessageQueue('TopicTest_1', 'taobaodaily-04', 1);
     this.store.updateOffset(mq, 1000);
     this.store.removeOffset(mq);
