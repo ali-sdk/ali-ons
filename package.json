@@ -13,7 +13,7 @@
     "test": "npm run lint && npm run test-local",
     "test-local": "egg-bin test",
     "cov": "TEST_TIMEOUT=60000 egg-bin cov",
-    "ci": "npm run autod && npm run pkgfiles && npm run lint && npm run cov",
+    "ci": "npm run autod -- --check && npm run pkgfiles && npm run lint && npm run cov",
     "contributors": "contributors -f plain -o AUTHORS"
   },
   "repository": {
