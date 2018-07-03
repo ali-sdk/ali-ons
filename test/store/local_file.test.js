@@ -9,66 +9,66 @@ const LocalFileOffsetStore = require('../../lib/store/local_file');
 
 describe('test/store/local_file.test.js', function() {
 
-  before(function* () {
+  before(async () => {
     const client = new MQClient(new ClientConfig({
       instanceName: Date.now() + '',
       httpclient,
     }));
-    yield client.ready();
+    await client.ready();
     this.store = new LocalFileOffsetStore(client, 'please_rename_unique_group_name_1');
   });
 
-  it('should load ok', function* () {
-    yield this.store.load();
+  it('should load ok', () => {
+    return this.store.load();
   });
 
-  it('should updateOffset ok', function() {
+  it('should updateOffset ok', () => {
     const mq = new MessageQueue('TopicTest_1', 'taobaodaily-04', 1);
     this.store.updateOffset(mq, 1000, true);
     assert(this.store.offsetTable.get('[topic="TopicTest_1", brokerName="taobaodaily-04", queueId="1"]') === 1000);
     this.store.updateOffset(null, 1000);
   });
 
-  it('should readOffset ok', function* () {
+  it('should readOffset ok', async () => {
     const mq = new MessageQueue('TopicTest_1', 'taobaodaily-04', 1);
     this.store.updateOffset(mq, 1000, true);
-    let offset = yield this.store.readOffset(mq, 'READ_FROM_MEMORY');
+    let offset = await this.store.readOffset(mq, 'READ_FROM_MEMORY');
     assert(offset === 1000);
 
-    offset = yield this.store.readOffset(mq, 'READ_FROM_STORE');
+    offset = await this.store.readOffset(mq, 'READ_FROM_STORE');
     assert(typeof offset === 'number');
 
-    offset = yield this.store.readOffset(null, 'READ_FROM_STORE');
+    offset = await this.store.readOffset(null, 'READ_FROM_STORE');
     assert(offset === -1);
 
     const mq1 = new MessageQueue('TopicTest_1', 'xxx', 1);
-    offset = yield this.store.readOffset(mq1, 'READ_FROM_STORE');
+    offset = await this.store.readOffset(mq1, 'READ_FROM_STORE');
     assert(typeof offset === 'number');
     assert(offset === -1);
 
     const mq2 = new MessageQueue('TopicTest_1', 'yyy', 1);
-    offset = yield this.store.readOffset(mq2, 'MEMORY_FIRST_THEN_STORE');
+    offset = await this.store.readOffset(mq2, 'MEMORY_FIRST_THEN_STORE');
     assert(typeof offset === 'number');
     assert(offset === -1);
   });
 
-  it('should persistAll ok', function* () {
+  it('should persistAll ok', async () => {
     const mq = new MessageQueue('TopicTest_1', 'taobaodaily-04', 1);
     this.store.updateOffset(mq, 1000);
-    yield this.store.persistAll([ mq ]);
-    yield this.store.persistAll([]);
-    yield this.store.persistAll(null);
+    await this.store.persistAll([ mq ]);
+    await this.store.persistAll([]);
+    await this.store.persistAll(null);
   });
 
-  it('should persist ok', function* () {
+  it('should persist ok', async () => {
     const mq = new MessageQueue('TopicTest_1', 'taobaodaily-04', 1);
     this.store.updateOffset(mq, 1000);
-    yield this.store.persist(mq);
+    await this.store.persist(mq);
     const mq1 = new MessageQueue('TopicTest_1', 'zzz', 1);
-    yield this.store.persist(mq1);
+    await this.store.persist(mq1);
   });
 
-  it('should removeOffset ok', function() {
+  it('should removeOffset ok', () => {
     const mq = new MessageQueue('TopicTest_1', 'taobaodaily-04', 1);
     this.store.updateOffset(mq, 1000);
     this.store.removeOffset(mq);

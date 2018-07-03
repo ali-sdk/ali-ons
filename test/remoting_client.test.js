@@ -11,27 +11,25 @@ const RemotingCommand = require('../lib/protocol/command/remoting_command');
 
 describe('test/remoting_client.test.js', function() {
   let client;
-  before(function* () {
+  before(() => {
     client = new RemotingClient(Object.assign({ httpclient }, config));
-    yield client.ready();
+    return client.ready();
   });
 
   afterEach(mm.restore);
 
-  after(function* () {
-    yield client.close();
-  });
+  after(() => client.close());
 
-  it('should create & ready ok', function* () {
+  it('should create & ready ok', async () => {
     const client = new RemotingClient(Object.assign({ httpclient }, config));
-    yield client.ready();
+    await client.ready();
     assert(client._namesrvAddrList.length > 0);
-    yield client.close();
+    await client.close();
   });
 
-  it('should invoke ok', function* () {
-    yield client.ready();
-    const res = yield client.invoke(null, new RemotingCommand({
+  it('should invoke ok', async () => {
+    await client.ready();
+    const res = await client.invoke(null, new RemotingCommand({
       code: RequestCode.GET_ROUTEINTO_BY_TOPIC,
       customHeader: {
         topic: 'NOT_EXISTS',
@@ -41,8 +39,8 @@ describe('test/remoting_client.test.js', function() {
     assert(res.code === ResponseCode.TOPIC_NOT_EXIST);
   });
 
-  it('should invoke oneway ok', function* () {
-    yield client.invokeOneway(null, new RemotingCommand({
+  it('should invoke oneway ok', async () => {
+    await client.invokeOneway(null, new RemotingCommand({
       code: RequestCode.GET_KV_CONFIG_BY_VALUE,
       customHeader: {
         namespace: 'PROJECT_CONFIG',
@@ -51,10 +49,10 @@ describe('test/remoting_client.test.js', function() {
     }));
   });
 
-  it('should close ok', function* () {
+  it('should close ok', async () => {
     const client = new RemotingClient(Object.assign({ httpclient }, config));
-    yield client.ready();
-    const res = yield client.invoke(null, new RemotingCommand({
+    await client.ready();
+    const res = await client.invoke(null, new RemotingCommand({
       code: RequestCode.GET_ROUTEINTO_BY_TOPIC,
       customHeader: {
         topic: 'NOT_EXISTS',
@@ -64,14 +62,14 @@ describe('test/remoting_client.test.js', function() {
     assert(res);
     assert(res.code === ResponseCode.TOPIC_NOT_EXIST);
 
-    yield client.close();
-    yield client.close();
+    await client.close();
+    await client.close();
   });
 
-  it('should invoke ok after close', function* () {
+  it('should invoke ok after close', async () => {
     const client = new RemotingClient(Object.assign({ httpclient }, config));
-    yield client.ready();
-    const res = yield client.invoke(null, new RemotingCommand({
+    await client.ready();
+    const res = await client.invoke(null, new RemotingCommand({
       code: RequestCode.GET_ROUTEINTO_BY_TOPIC,
       customHeader: {
         topic: 'NOT_EXISTS',
@@ -80,15 +78,15 @@ describe('test/remoting_client.test.js', function() {
     assert(res);
     assert(res.code === ResponseCode.TOPIC_NOT_EXIST);
 
-    yield client.close();
+    await client.close();
 
-    yield client.invokeOneway(null, new RemotingCommand({
+    await client.invokeOneway(null, new RemotingCommand({
       code: RequestCode.GET_ROUTEINTO_BY_TOPIC,
       customHeader: {
         topic: 'NOT_EXISTS',
       },
     }));
-    yield client.invoke(null, new RemotingCommand({
+    await client.invoke(null, new RemotingCommand({
       code: RequestCode.GET_ROUTEINTO_BY_TOPIC,
       customHeader: {
         topic: 'NOT_EXISTS',
@@ -96,32 +94,32 @@ describe('test/remoting_client.test.js', function() {
     }), 5000);
   });
 
-  it('should call multi times ok', function* () {
-    yield client.invoke(null, new RemotingCommand({
+  it('should call multi times ok', async () => {
+    await client.invoke(null, new RemotingCommand({
       code: RequestCode.GET_ROUTEINTO_BY_TOPIC,
       customHeader: {
         topic: 'NOT_EXISTS',
       },
     }), 5000);
-    yield client.invoke(null, new RemotingCommand({
+    await client.invoke(null, new RemotingCommand({
       code: RequestCode.GET_ROUTEINTO_BY_TOPIC,
       customHeader: {
         topic: 'NOT_EXISTS',
       },
     }), 5000);
-    yield client.invoke(null, new RemotingCommand({
+    await client.invoke(null, new RemotingCommand({
       code: RequestCode.GET_ROUTEINTO_BY_TOPIC,
       customHeader: {
         topic: 'NOT_EXISTS',
       },
     }), 5000);
-    yield client.invokeOneway(null, new RemotingCommand({
+    await client.invokeOneway(null, new RemotingCommand({
       code: RequestCode.GET_ROUTEINTO_BY_TOPIC,
       customHeader: {
         topic: 'NOT_EXISTS',
       },
     }));
-    yield client.invokeOneway(null, new RemotingCommand({
+    await client.invokeOneway(null, new RemotingCommand({
       code: RequestCode.GET_ROUTEINTO_BY_TOPIC,
       customHeader: {
         topic: 'NOT_EXISTS',
