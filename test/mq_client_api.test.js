@@ -33,4 +33,29 @@ describe('test/mq_client_api.test.js', function() {
     }
     assert(isError);
   });
+
+  it('should getTopicRouteInfoFromNameServer ok', async () => {
+    const res = await client.getTopicRouteInfoFromNameServer('TEST_TOPIC', 3000);
+    assert(res);
+  });
+
+  it('should getTopicRouteInfoFromNameServer ok if old one is closed', async () => {
+    client._namesrvAddrList.unshift('1.2.3.4:80', '2.3.4.5:80');
+    client._namesrvAddrList.push('6.7.8.9:80');
+    const res = await client.getTopicRouteInfoFromNameServer('TEST_TOPIC', 3000);
+    assert(res);
+  });
+
+  it('should getTopicRouteInfoFromNameServer ok if old one is closed empty list', async () => {
+    client._namesrvAddrList = [];
+    let isError = false;
+    try {
+      await client.getTopicRouteInfoFromNameServer('TEST_TOPIC', 3000);
+    } catch (err) {
+      isError = true;
+      assert(err.name === 'MQClientException');
+    }
+    assert(isError);
+  });
+
 });
