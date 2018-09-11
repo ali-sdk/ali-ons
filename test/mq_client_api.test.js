@@ -40,8 +40,8 @@ describe('test/mq_client_api.test.js', function() {
   });
 
   it('should getTopicRouteInfoFromNameServer ok if old one is closed', async () => {
-    client._namesrvAddrList.push('1.2.3.4');
-    client._namesrvAddrList.push('6.7.8.9');
+    client._namesrvAddrList.push('1.2.3.4:80');
+    client._namesrvAddrList.push('6.7.8.9:80');
     const res = await client.getTopicRouteInfoFromNameServer('TEST_TOPIC', 3000);
     assert(res);
   });
