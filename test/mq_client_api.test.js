@@ -39,11 +39,6 @@ describe('test/mq_client_api.test.js', function() {
     assert(res);
   });
 
-  it('should getTopicRouteInfoFromNameServer ok if old one is closed defatult one ip', async () => {
-    const res = await client.getTopicRouteInfoFromNameServer('TEST_TOPIC', 3000);
-    assert(res);
-  });
-
   it('should getTopicRouteInfoFromNameServer ok if old one is closed', async () => {
     client._namesrvAddrList.unshift('1.2.3.4:80', '2.3.4.5:80');
     client._namesrvAddrList.push('6.7.8.9:80');
