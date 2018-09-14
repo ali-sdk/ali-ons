@@ -1,4 +1,10 @@
 
+3.1.0 / 2018-09-14
+==================
+
+**others**
+  * [[`d1de082`](http://github.com/ali-sdk/ali-ons/commit/d1de0823fcc860ae12133a0026ddcfe2105db82d)] - name-server-fault-tolerance (wujia <<geoff.j.wu@gmail.com>>)
+
 3.0.0 / 2018-07-03
 ==================
 
