@@ -1,7 +1,12 @@
 sudo: false
+os:
+  - linux
+  - osx
+  - windows
 language: node_js
 node_js:
   - '8'
+  - '10'
 install:
   - npm i npminstall && npminstall
 env:
