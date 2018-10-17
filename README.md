@@ -62,7 +62,7 @@ const producer = new Producer({
   producerGroup: 'your-producer-group',
 });
 
-co(function*() {
+(async () => {
   const msg = new Message('your-topic', // topic
     'TagA', // tag
     'Hello ONS !!! ' // body
@@ -71,9 +71,9 @@ co(function*() {
   // set Message#keys
   msg.keys = ['key1'];
 
-  const sendResult = yield producer.send(msg);
+  const sendResult = await producer.send(msg);
   console.log(sendResult);
-}).catch(err => console.error(err))
+})().catch(err => console.error(err))
 ```
 
 ## License
