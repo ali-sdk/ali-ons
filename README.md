@@ -33,7 +33,7 @@ const httpclient = require('urllib');
 const Consumer = require('ali-ons').Consumer;
 const consumer = new Consumer({
   httpclient,
-  accessKeyID: 'your-AccessKeyID',
+  accessKeyId: 'your-accessKeyId',
   accessKeySecret: 'your-AccessKeySecret',
   consumerGroup: 'your-consumer-group',
   // isBroadcast: true,
@@ -57,7 +57,7 @@ const Message = require('ali-ons').Message;
 
 const producer = new Producer({
   httpclient,
-  accessKeyID: 'your-AccessKeyID',
+  accessKeyId: 'your-accessKeyId',
   accessKeySecret: 'your-AccessKeySecret',
   producerGroup: 'your-producer-group',
 });
