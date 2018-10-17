@@ -1,4 +1,14 @@
 
+3.2.0 / 2018-10-17
+==================
+
+**features**
+  * [[`8ec58c8`](http://github.com/ali-sdk/ali-ons/commit/8ec58c8f773633a4f1bb0341306d89afda1972e5)] - feat: unify aliyun keys to accessKeyID and accessKeySecret (fengmk2 <<fengmk2@gmail.com>>)
+
+**others**
+  * [[`9ecd381`](http://github.com/ali-sdk/ali-ons/commit/9ecd381f7079d7be6f2551a6baabfc51cdefde46)] - f (fengmk2 <<fengmk2@gmail.com>>)
+  * [[`742f269`](http://github.com/ali-sdk/ali-ons/commit/742f269534c2e30f0772663ca3690ad000d9c75e)] - f (fengmk2 <<fengmk2@gmail.com>>)
+
 3.1.0 / 2018-09-14
 ==================
 
