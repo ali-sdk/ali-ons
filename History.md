@@ -1,4 +1,10 @@
 
+3.2.1 / 2018-10-18
+==================
+
+**fixes**
+  * [[`d6b6fc6`](http://github.com/ali-sdk/ali-ons/commit/d6b6fc61d049c5925c65913c299d0b423573d4b6)] - fix: accessKeyID => accessKeyId (#50) (fengmk2 <<fengmk2@gmail.com>>)
+
 3.2.0 / 2018-10-17
 ==================
 
