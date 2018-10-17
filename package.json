@@ -2,7 +2,7 @@
   "name": "ali-ons",
   "version": "3.1.0",
   "description": "Aliyun Open Notification Service Client",
-  "main": "./lib/index.js",
+  "main": "lib/index.js",
   "files": [
     "lib"
   ],
