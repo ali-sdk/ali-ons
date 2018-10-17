@@ -9,8 +9,8 @@ const env = process.env;
 // export ALI_SDK_ONS_TOPIC=your-topic
 
 module.exports = {
-  accessKey: env.ALI_SDK_ONS_ID,
-  secretKey: env.ALI_SDK_ONS_SECRET,
+  accessKeyID: env.ALI_SDK_ONS_ID,
+  accessKeySecret: env.ALI_SDK_ONS_SECRET,
   producerGroup: env.ALI_SDK_ONS_PGROUP,
   consumerGroup: env.ALI_SDK_ONS_CGROUP,
   topic: env.ALI_SDK_ONS_TOPIC,
