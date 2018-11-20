@@ -1,4 +1,13 @@
 
+3.2.2 / 2018-11-20
+==================
+
+**fixes**
+  * [[`39e3782`](http://github.com/ali-sdk/ali-ons/commit/39e37827c8eac0c16e1fb5ecd64792da331673f3)] - fix: parse date format (#53) (Hongcai Deng <<admin@dhchouse.com>>)
+
+**others**
+  * [[`e2dc377`](http://github.com/ali-sdk/ali-ons/commit/e2dc377babb3a420e2dfc99a33bf6118979825ff)] - test: fix ci (#54) (zōng yǔ <<gxcsoccer@users.noreply.github.com>>)
+
 3.2.1 / 2018-10-18
 ==================
 
