@@ -5,6 +5,8 @@ const address = require('address');
 const httpclient = require('urllib');
 const MQClientAPI = require('../lib/mq_client_api');
 
+const TOPIC = 'GXCSOCCER';
+
 describe('test/mq_client_api.test.js', function() {
   let client;
   before(() => {
@@ -19,7 +21,7 @@ describe('test/mq_client_api.test.js', function() {
   });
 
   it('should getDefaultTopicRouteInfoFromNameServer ok', async () => {
-    const res = await client.getDefaultTopicRouteInfoFromNameServer('TEST_TOPIC', 3000);
+    const res = await client.getDefaultTopicRouteInfoFromNameServer(TOPIC, 3000);
     assert(res);
   });
 
@@ -35,14 +37,14 @@ describe('test/mq_client_api.test.js', function() {
   });
 
   it('should getTopicRouteInfoFromNameServer ok', async () => {
-    const res = await client.getTopicRouteInfoFromNameServer('TEST_TOPIC', 3000);
+    const res = await client.getTopicRouteInfoFromNameServer(TOPIC, 3000);
     assert(res);
   });
 
   it('should getTopicRouteInfoFromNameServer ok if old one is closed', async () => {
     client._namesrvAddrList.unshift('1.2.3.4:80', '2.3.4.5:80');
     client._namesrvAddrList.push('6.7.8.9:80');
-    const res = await client.getTopicRouteInfoFromNameServer('TEST_TOPIC', 3000);
+    const res = await client.getTopicRouteInfoFromNameServer(TOPIC, 3000);
     assert(res);
   });
 
@@ -50,7 +52,7 @@ describe('test/mq_client_api.test.js', function() {
     client._namesrvAddrList = [];
     let isError = false;
     try {
-      await client.getTopicRouteInfoFromNameServer('TEST_TOPIC', 3000);
+      await client.getTopicRouteInfoFromNameServer(TOPIC, 3000);
     } catch (err) {
       isError = true;
       assert(err.name === 'MQClientException');

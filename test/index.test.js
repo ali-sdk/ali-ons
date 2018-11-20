@@ -13,6 +13,8 @@ const sleep = require('mz-modules/sleep');
 const rimraf = require('mz-modules/rimraf');
 const config = require('../example/config');
 
+const TOPIC = 'GXCSOCCER';
+
 const localOffsetStoreDir = path.join(osenv.home(), '.rocketmq_offsets_node');
 
 describe('test/index.test.js', () => {
@@ -33,7 +35,7 @@ describe('test/index.test.js', () => {
       }, config));
       await consumer.ready();
 
-      consumer.subscribe('TEST_TOPIC', async msg => {
+      consumer.subscribe(TOPIC, async msg => {
         console.log('message receive ------------> ', msg.body.toString());
       });
     });
@@ -56,7 +58,7 @@ describe('test/index.test.js', () => {
           sendStatus: 'FLUSH_DISK_TIMEOUT',
         };
       });
-      const msg = new Message('TEST_TOPIC', // topic
+      const msg = new Message(TOPIC, // topic
         'TagA', // tag
         'Hello TagA !!! ' // body
       );
@@ -76,7 +78,7 @@ describe('test/index.test.js', () => {
     });
 
     it('should tryToFindTopicPublishInfo if brokerAddr not found', async () => {
-      const msg = new Message('TEST_TOPIC', // topic
+      const msg = new Message(TOPIC, // topic
         'TagA', // tag
         'Hello TagA !!! ' // body
       );
@@ -108,7 +110,7 @@ describe('test/index.test.js', () => {
 
       isError = false;
       try {
-        await producer.send(new Message('%RETRY%TEST_TOPIC', // topic
+        await producer.send(new Message('%RETRY%' + TOPIC, // topic
           'TagA', // tag
           'Hello TagA !!! ' // body
         ));
@@ -124,7 +126,7 @@ describe('test/index.test.js', () => {
         throw new Error('mock error');
       });
 
-      const msg = new Message('TEST_TOPIC', // topic
+      const msg = new Message(TOPIC, // topic
         'TagA', // tag
         'Hello TagA !!!   sds' // body
       );
@@ -144,7 +146,7 @@ describe('test/index.test.js', () => {
     });
 
     it('should updateProcessQueueTableInRebalance ok', async () => {
-      await consumer.rebalanceByTopic('TEST_TOPIC');
+      await consumer.rebalanceByTopic(TOPIC);
       const size = consumer.processQueueTable.size;
       assert(size > 0);
 
@@ -153,10 +155,10 @@ describe('test/index.test.js', () => {
       const processQueue = obj.processQueue;
       processQueue.lastPullTimestamp = 10000;
 
-      await consumer.rebalanceByTopic('TEST_TOPIC');
+      await consumer.rebalanceByTopic(TOPIC);
       assert(consumer.processQueueTable.size === size);
 
-      await consumer.updateProcessQueueTableInRebalance('TEST_TOPIC', []);
+      await consumer.updateProcessQueueTableInRebalance(TOPIC, []);
       assert(consumer.processQueueTable.size === 0);
     });
 
@@ -254,10 +256,12 @@ describe('test/index.test.js', () => {
 
         it('should subscribe message ok', async () => {
           let msgId;
-          consumer.subscribe('TEST_TOPIC', 'TagA', async msg => {
-            console.log('message receive ------------> ', msg.body.toString());
+          const received = new Set();
+          consumer.subscribe(TOPIC, 'TagA', async msg => {
+            console.log('message receive ------------> ', msg.msgId, msg.body.toString());
             assert(msg.tags !== 'TagB');
-            if (msg.msgId === msgId) {
+            received.add(msg.msgId);
+            if (msgId && received.has(msgId)) {
               assert(msg.body.toString() === 'Hello MetaQ !!! ');
               consumer.emit('TagA');
             }
@@ -265,24 +269,28 @@ describe('test/index.test.js', () => {
 
           await sleep(5000);
 
-          let msg = new Message('TEST_TOPIC', // topic
+          let msg = new Message(TOPIC, // topic
             'TagB', // tag
             'Hello MetaQ !!! ' // body
           );
           let sendResult = await producer.send(msg);
           assert(sendResult && sendResult.msgId);
-          msg = new Message('TEST_TOPIC', // topic
+          msg = new Message(TOPIC, // topic
             'TagA', // tag
             'Hello MetaQ !!! ' // body
           );
           sendResult = await producer.send(msg);
           assert(sendResult && sendResult.msgId);
           msgId = sendResult.msgId;
-          await consumer.await('TagA');
+          console.log('send message success,', sendResult.msgId);
+
+          if (!received.has(msgId)) {
+            await consumer.await('TagA');
+          }
         });
 
         it.skip('should viewMessage ok', async () => {
-          const msg = new Message('TEST_TOPIC', // topic
+          const msg = new Message(TOPIC, // topic
             'TagA', // tag
             'Hello MetaQ !!! ' // body
           );
@@ -300,7 +308,6 @@ describe('test/index.test.js', () => {
 
   // 集群消费
   describe('cluster', () => {
-    const topic = 'TEST_TOPIC';
     let consumer;
     let producer;
     before(async () => {
@@ -325,7 +332,7 @@ describe('test/index.test.js', () => {
     it('should subscribe message ok', async () => {
       await sleep(3000);
 
-      const msg = new Message(topic, // topic
+      const msg = new Message(TOPIC, // topic
         'TagA', // tag
         'Hello MetaQ !!! ' // body
       );
@@ -336,7 +343,7 @@ describe('test/index.test.js', () => {
       console.log(sendResult);
 
       await new Promise(r => {
-        consumer.subscribe(topic, '*', async msg => {
+        consumer.subscribe(TOPIC, '*', async msg => {
           if (msg.msgId === msgId) {
             assert(msg.body.toString() === 'Hello MetaQ !!! ');
             r();
@@ -368,7 +375,7 @@ describe('test/index.test.js', () => {
 
     it('should retry if process failed', async () => {
       let msgId;
-      consumer.subscribe('TEST_TOPIC', '*', async msg => {
+      consumer.subscribe(TOPIC, '*', async msg => {
         console.log('message receive ------------> ', msg.body.toString());
         if (msg.msgId === msgId) {
           assert(msg.body.toString() === 'Hello MetaQ !!! ');
@@ -381,7 +388,7 @@ describe('test/index.test.js', () => {
 
       await sleep(5000);
 
-      const msg = new Message('TEST_TOPIC', // topic
+      const msg = new Message(TOPIC, // topic
         'TagA', // tag
         'Hello MetaQ !!! ' // body
       );
@@ -420,7 +427,7 @@ describe('test/index.test.js', () => {
     it('should retry if process failed', async () => {
       let count = 20;
       while (count--) {
-        const msg = new Message('TEST_TOPIC', // topic
+        const msg = new Message(TOPIC, // topic
           'TagA', // tag
           'Hello MetaQ !!! ' // body
         );
@@ -428,7 +435,7 @@ describe('test/index.test.js', () => {
         assert(sendResult && sendResult.msgId);
       }
 
-      consumer.subscribe('TEST_TOPIC', '*', async (msg, mq, pq) => {
+      consumer.subscribe(TOPIC, '*', async (msg, mq, pq) => {
         console.log('message receive ------------> ', msg.body.toString());
 
         const msgCount = pq.msgCount;

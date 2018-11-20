@@ -11,7 +11,7 @@ const consumer = new Consumer(Object.assign(config, {
   consumeFromWhere: 'CONSUME_FROM_LAST_OFFSET_AND_FROM_MIN_WHEN_BOOT_FIRST',
 }));
 
-consumer.subscribe(config.topic, '*', function*(msg) {
+consumer.subscribe(config.topic, '*', async function(msg) {
   console.log(`receive message, msgId: ${msg.msgId}, body: ${msg.body.toString()}`)
 });
 

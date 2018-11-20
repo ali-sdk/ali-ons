@@ -81,19 +81,19 @@ describe('test/allocate_message_queue_averagely.test.js', function() {
   it('should throw error if currentId is null', function() {
     assert.throws(() => {
       allocator.allocate('test', null, [ 1, 2, 3, 4, 5, 6, 7, 8 ], [ '1', '2' ]);
-    }, 'currentCID is empty');
+    }, /currentCID is empty/);
   });
 
   it('should throw error if mqAll is empty', function() {
     assert.throws(() => {
       allocator.allocate('test', '1', [], [ '1', '2' ]);
-    }, 'mqAll is null or mqAll empty');
+    }, /mqAll is null or mqAll empty/);
   });
 
   it('should throw error if cidAll is empty', function() {
     assert.throws(() => {
       allocator.allocate('test', '1', [ 1, 2, 3, 4, 5, 6, 7, 8 ], []);
-    }, 'cidAll is null or cidAll empty');
+    }, /cidAll is null or cidAll empty/);
   });
 
   it('should get empty array if currentId not exists in cidAll', function() {

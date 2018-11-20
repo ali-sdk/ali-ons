@@ -35,29 +35,29 @@
     "JSON2": "^0.1.0",
     "address": "^1.0.3",
     "binary-search-insert": "^1.0.3",
-    "byte": "^1.4.0",
+    "byte": "^2.0.0",
     "bytes": "^3.0.0",
-    "chalk": "^2.3.2",
-    "debug": "^3.1.0",
-    "egg-logger": "^1.6.1",
-    "is-type-of": "^1.2.0",
+    "chalk": "^2.4.1",
+    "debug": "^4.1.0",
+    "egg-logger": "^2.0.3",
+    "is-type-of": "^1.2.1",
     "long": "^4.0.0",
     "mkdirp": "^0.5.1",
     "mz-modules": "^2.1.0",
     "osenv": "^0.1.5",
-    "p-gather": "^1.0.1",
-    "sdk-base": "^3.4.0",
+    "p-gather": "^1.0.2",
+    "sdk-base": "^3.5.1",
     "tcp-base": "^3.1.0",
-    "utility": "^1.13.1"
+    "utility": "^1.15.0"
   },
   "devDependencies": {
     "autod": "^3.0.1",
     "contributors": "^0.5.1",
-    "egg-bin": "^4.4.1",
-    "eslint": "^4.19.1",
-    "eslint-config-egg": "^7.0.0",
-    "mm": "^2.2.0",
-    "urllib": "^2.27.0"
+    "egg-bin": "^4.9.0",
+    "eslint": "^5.9.0",
+    "eslint-config-egg": "^7.1.0",
+    "mm": "^2.4.1",
+    "urllib": "^2.31.2"
   },
   "engines": {
     "node": ">= 8.0.0"
