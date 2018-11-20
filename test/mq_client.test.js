@@ -5,6 +5,9 @@ const httpclient = require('urllib');
 const ClientConfig = require('../lib/client_config');
 const MQClient = require('../lib/mq_client');
 
+const consumerGroup = 'CID_GXCSOCCER';
+const producerGroup = 'PID_GXCSOCCER';
+
 describe('test/mq_client.test.js', () => {
   const config = new ClientConfig(Object.assign({ httpclient }, require('../example/config')));
 
@@ -21,54 +24,54 @@ describe('test/mq_client.test.js', () => {
   });
 
   it('should registerConsumer ok', async () => {
-    client.registerConsumer('please_rename_unique_group_name_1', {
+    client.registerConsumer(consumerGroup, {
       subscriptions: new Map(),
       updateTopicSubscribeInfo() {},
       isSubscribeTopicNeedUpdate() {},
       doRebalance() {},
     });
     assert(client._consumerTable.size === 1);
-    client.registerConsumer('please_rename_unique_group_name_1', {});
+    client.registerConsumer(consumerGroup, {});
     assert(client._consumerTable.size === 1);
-    await client.unregisterConsumer('please_rename_unique_group_name_1');
+    await client.unregisterConsumer(consumerGroup);
     assert(client._consumerTable.size === 0);
   });
 
   it('should registerProducer ok', async () => {
-    client.registerProducer('please_rename_unique_group_name_1', {
+    client.registerProducer(producerGroup, {
       publishTopicList: new Map(),
       updateTopicPublishInfo() {},
       isPublishTopicNeedUpdate() {},
     });
     assert(client._producerTable.size === 1);
-    client.registerProducer('please_rename_unique_group_name_1', {});
+    client.registerProducer(producerGroup, {});
     assert(client._producerTable.size === 1);
-    await client.unregisterProducer('please_rename_unique_group_name_1');
+    await client.unregisterProducer(producerGroup);
     assert(client._producerTable.size === 0);
   });
 
   it('should not close if there are producer or consumer', async () => {
-    client.registerConsumer('please_rename_unique_group_name_1', {
+    client.registerConsumer(consumerGroup, {
       subscriptions: new Map(),
       updateTopicSubscribeInfo() {},
       isSubscribeTopicNeedUpdate() {},
       doRebalance() {},
     });
     await client.close();
-    await client.unregisterConsumer('please_rename_unique_group_name_1');
+    await client.unregisterConsumer(consumerGroup);
 
-    client.registerProducer('please_rename_unique_group_name_1', {
+    client.registerProducer(producerGroup, {
       publishTopicList: new Map(),
       updateTopicPublishInfo() {},
       isPublishTopicNeedUpdate() {},
     });
     await client.close();
-    await client.unregisterProducer('please_rename_unique_group_name_1');
+    await client.unregisterProducer(producerGroup);
   });
 
   it('should updateAllTopicRouterInfo ok', async () => {
     const subscriptions = new Map();
-    subscriptions.set('please_rename_unique_group_name_1', {
+    subscriptions.set(consumerGroup, {
       topic: 'TopicTest',
       subString: '*',
       classFilterMode: false,
@@ -76,14 +79,14 @@ describe('test/mq_client.test.js', () => {
       codeSet: [],
       subVersion: Date.now(),
     });
-    client.registerConsumer('please_rename_unique_group_name_1', {
+    client.registerConsumer(consumerGroup, {
       subscriptions,
       updateTopicSubscribeInfo() {},
       isSubscribeTopicNeedUpdate() {},
       doRebalance() {},
     });
     client.registerConsumer('xxx', null);
-    client.registerProducer('please_rename_unique_group_name_1', {
+    client.registerProducer(producerGroup, {
       publishTopicList: [ 'TopicTest' ],
       updateTopicPublishInfo() {},
       isPublishTopicNeedUpdate() {},
@@ -92,8 +95,8 @@ describe('test/mq_client.test.js', () => {
 
     client.updateAllTopicRouterInfo();
 
-    await client.unregisterConsumer('please_rename_unique_group_name_1');
-    await client.unregisterProducer('please_rename_unique_group_name_1');
+    await client.unregisterConsumer(consumerGroup);
+    await client.unregisterProducer(producerGroup);
     await client.unregisterConsumer('xxx');
     await client.unregisterProducer('xxx');
   });

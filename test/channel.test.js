@@ -11,6 +11,8 @@ const RemotingCommand = require('../lib/protocol/command/remoting_command');
 const localIp = require('address').ip();
 const onsAddr = 'http://onsaddr-internet.aliyun.com/rocketmq/nsaddr4client-internet';
 
+const TOPIC = 'GXCSOCCER';
+
 describe('test/channel.test.js', function() {
   let address;
   before(function(done) {
@@ -56,7 +58,7 @@ describe('test/channel.test.js', function() {
     const res = await channel.invoke(new RemotingCommand({
       code: RequestCode.GET_ROUTEINTO_BY_TOPIC,
       customHeader: {
-        topic: 'TEST_TOPIC',
+        topic: TOPIC,
       },
     }), 5000);
     assert(res);
@@ -69,7 +71,7 @@ describe('test/channel.test.js', function() {
     const res = await channel.invoke(new RemotingCommand({
       code: RequestCode.GET_ROUTEINTO_BY_TOPIC,
       customHeader: {
-        topic: 'TEST_TOPIC',
+        topic: TOPIC,
       },
     }), 5000);
     assert(res);
