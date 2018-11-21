@@ -12,12 +12,13 @@ describe('test/mq_client.test.js', () => {
   const config = new ClientConfig(Object.assign({ httpclient }, require('../example/config')));
 
   let client;
-  before(() => {
+  before(async () => {
     client = MQClient.getAndCreateMQClient(config);
+    client.unregisterProducer('CLIENT_INNER_PRODUCER');
     return client.ready();
   });
 
-  after(async () => client.close());
+  after(() => client.close());
 
   it('should mqclient is singleton', () => {
     assert(MQClient.getAndCreateMQClient(config) === client);
@@ -71,7 +72,7 @@ describe('test/mq_client.test.js', () => {
 
   it('should updateAllTopicRouterInfo ok', async () => {
     const subscriptions = new Map();
-    subscriptions.set(consumerGroup, {
+    subscriptions.set('TopicTest', {
       topic: 'TopicTest',
       subString: '*',
       classFilterMode: false,
@@ -93,11 +94,15 @@ describe('test/mq_client.test.js', () => {
     });
     client.registerProducer('xxx', null);
 
-    client.updateAllTopicRouterInfo();
+    await client.updateAllTopicRouterInfo();
 
     await client.unregisterConsumer(consumerGroup);
     await client.unregisterProducer(producerGroup);
-    await client.unregisterConsumer('xxx');
+    try {
+      await client.unregisterConsumer('xxx');
+    } catch (err) {
+      assert(err.message.includes('resource xxx not created'));
+    }
     await client.unregisterProducer('xxx');
   });
 
