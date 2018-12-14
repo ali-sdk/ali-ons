@@ -8,4 +8,12 @@ describe('test/utils/index.test.js', () => {
     const d = util.parseDate('2018112000000');
     assert.equal(d.getTime() - d.getTimezoneOffset() * 60 * 1000, 1542672000000);
   });
+
+  it('should getRetryTopic ok', () => {
+    const msg = {
+      retryTopic: 'xxx',
+    };
+    util.resetRetryTopic(msg, 'yyy');
+    assert.equal(msg.retryTopic, 'xxx');
+  });
 });
