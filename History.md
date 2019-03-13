@@ -1,4 +1,10 @@
 
+3.4.0 / 2019-03-13
+==================
+
+**features**
+  * [[`7dfe610`](http://github.com/ali-sdk/ali-ons/commit/7dfe6105f41d7478d587732e3ed9c14e2b96e1bb)] - feat: support set namesrv (#61) (Hongcai Deng <<admin@dhchouse.com>>)
+
 3.3.0 / 2018-12-14
 ==================
 
