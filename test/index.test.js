@@ -548,7 +548,7 @@ describe('test/index.test.js', () => {
     let consumer;
     let consumeTime = 0;
     // 允许的误差时间
-    const deviationTime = 500;
+    const deviationTime = 3000;
 
     before(async () => {
       producer = new Producer(Object.assign({
@@ -571,14 +571,14 @@ describe('test/index.test.js', () => {
     });
 
     it('should receive message with specified time', async () => {
-      const delayTime = 3000;
+      const delayTime = 10000;
 
       const msg = new Message(config.topic, 'TagDelay', 'hello delay message');
       const produceTime = Date.now();
       msg.setStartDeliverTime(produceTime + delayTime);
       await producer.send(msg);
 
-      await sleep(5000);
+      await sleep(15000);
       assert(consumeTime - produceTime <= delayTime + deviationTime && consumeTime - produceTime >= delayTime);
     });
   });
