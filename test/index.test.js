@@ -542,4 +542,44 @@ describe('test/index.test.js', () => {
       ]);
     });
   });
+
+  describe('delay consume message', () => {
+    let producer;
+    let consumer;
+    let consumeTime = 0;
+    // 允许的误差时间
+    const deviationTime = 500;
+
+    before(async () => {
+      producer = new Producer(Object.assign({
+        httpclient,
+      }, config));
+      await producer.ready();
+      consumer = new Consumer(Object.assign({
+        httpclient,
+      }, config));
+      await consumer.ready();
+      consumer.subscribe(config.topic, 'TagDelay', async msg => {
+        console.log('message receive ------------> ', msg.body.toString());
+        consumeTime = Date.now();
+      });
+    });
+
+    after(async () => {
+      await producer.close();
+      await consumer.close();
+    });
+
+    it('should receive message with specified time', async () => {
+      const delayTime = 3000;
+
+      const msg = new Message(config.topic, 'TagDelay', 'hello delay message');
+      const produceTime = Date.now();
+      msg.setStartDeliverTime(produceTime + delayTime);
+      await producer.send(msg);
+
+      await sleep(5000);
+      assert(consumeTime - produceTime <= delayTime + deviationTime && consumeTime - produceTime >= delayTime);
+    });
+  });
 });

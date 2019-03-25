@@ -71,6 +71,9 @@ const producer = new Producer({
   // set Message#keys
   msg.keys = ['key1'];
 
+  // delay consume
+  // msg.setStartDeliverTime(Date.now() + 5000);
+
   const sendResult = await producer.send(msg);
   console.log(sendResult);
 })().catch(err => console.error(err))

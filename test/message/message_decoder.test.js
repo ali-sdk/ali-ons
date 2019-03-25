@@ -8,6 +8,7 @@ const MessageDecoder = require('../../lib/message/message_decoder');
 
 const NAME_VALUE_SEPARATOR = String.fromCharCode(1);
 const PROPERTY_SEPARATOR = String.fromCharCode(2);
+const SYSTEM_PROP_KEY_STARTDELIVERTIME = '__STARTDELIVERTIME';
 
 describe('test/message/message_decoder.test.js', function() {
   it('should decode message ok', function() {
@@ -89,5 +90,13 @@ describe('test/message/message_decoder.test.js', function() {
     assert(message.properties.WAIT === 'true');
     message.buyerId = '123';
     assert(message.properties.BUYER_ID === '123');
+  });
+
+  it('should create deliver time message ok', function() {
+    const deliverTime = Date.now() + 3000;
+    const message = new Message('fake_topic', 'fake body');
+    message.setStartDeliverTime(deliverTime);
+    assert(message.getStartDeliverTime() === deliverTime);
+    assert(message.properties[SYSTEM_PROP_KEY_STARTDELIVERTIME] === deliverTime);
   });
 });
