@@ -1,4 +1,10 @@
 
+3.5.0 / 2019-03-25
+==================
+
+**features**
+  * [[`073058b9d8`](https://github.com/ali-sdk/ali-ons/commit/073058b9d8)] - **feat**: support delay deliver message (#65) (MarvinWilliam <<la805779602@hotmail.com>>)
+
 3.4.0 / 2019-03-13
 ==================
 
