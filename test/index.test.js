@@ -582,4 +582,53 @@ describe('test/index.test.js', () => {
       assert(consumeTime - produceTime <= delayTime + deviationTime && consumeTime - produceTime >= delayTime);
     });
   });
+
+  // 阿里云rocketmq自创建实例
+  describe('namespace', () => {
+    let producer;
+    let consumer;
+    const namespace = 'NAMESPACE_TEST';
+
+    before(async () => {
+      producer = new Producer(Object.assign({
+        httpclient,
+        namespace,
+      }, config));
+      consumer = new Consumer(Object.assign({
+        httpclient,
+        namespace,
+      }, config));
+
+      await producer.ready();
+      await consumer.ready();
+    });
+
+    after(async () => {
+      if (producer) {
+        await producer.close();
+      }
+      if (consumer) {
+        await consumer.close();
+      }
+    });
+
+    it('should append namespace into group', () => {
+      assert(producer.producerGroup === `${namespace}%${config.producerGroup}`);
+      assert(consumer.consumerGroup === `${namespace}%${config.consumerGroup}`);
+    });
+
+    it('should send message with namespaced topic', async () => {
+      const msg = new Message(config.topic, 'TagNamespace', 'hello namespace');
+      await producer.send(msg);
+      assert(msg.topic === `${namespace}%${config.topic}`);
+    });
+
+    it('should create subscribe topic with namespace', () => {
+      consumer.subscribe(config.topic, 'TagNamespace', async () => {});
+      [ ...consumer.subscriptions.keys() ].forEach(topic => {
+        console.log(topic);
+        assert(topic.includes(namespace));
+      });
+    });
+  });
 });
