@@ -147,6 +147,8 @@ describe('test/index.test.js', () => {
     });
 
     it('should updateProcessQueueTableInRebalance ok', async () => {
+      mm(consumer, 'consumeOrderly', true);
+      mm(consumer, 'messageModel', 'CLUSTERING');
       await sleep(3000);
       await consumer.rebalanceByTopic(TOPIC);
       const size = consumer.processQueueTable.size;
@@ -160,7 +162,7 @@ describe('test/index.test.js', () => {
       await consumer.rebalanceByTopic(TOPIC);
       assert(consumer.processQueueTable.size === size);
 
-      await consumer.updateProcessQueueTableInRebalance(TOPIC, []);
+      await consumer.updateProcessQueueTableInRebalance(TOPIC, [], true);
       assert(consumer.processQueueTable.size === 0);
       await consumer.updateProcessQueueTableInRebalance(MixAll.getRetryTopic(consumer.consumerGroup), []);
       assert(consumer.processQueueTable.size === 0);
@@ -643,6 +645,157 @@ describe('test/index.test.js', () => {
 
       await consumer.await('consumed');
       assert(consumeTime - produceTime <= delayTime + deviationTime && consumeTime - produceTime >= delayTime - deviationTime);
+    });
+  });
+
+  // 顺序消息
+  describe('order message', () => {
+    let consumer;
+    let producer;
+    beforeEach(async () => {
+      consumer = new Consumer(Object.assign({
+        httpclient,
+        isBroadcast: false,
+        consumeOrderly: true,
+        maxReconsumeTimes: 2,
+      }, config));
+      await consumer.ready();
+      producer = new Producer(Object.assign({
+        httpclient,
+      }, config));
+      await producer.ready();
+    });
+
+    afterEach(async () => {
+      await consumer.close();
+      await producer.close();
+      mm.restore();
+    });
+
+    it('msgs should be in same queue and follow order', async () => {
+      await sleep(3000);
+
+      const msg = new Message(TOPIC, // topic
+        'TagC', // tag
+        'Hello MetaQ !!! ' // body
+      );
+      const selector = Math.random().toString();
+      const sendResult = await producer.send(msg, selector);
+      assert(sendResult && sendResult.msgId);
+      const sendResult_2 = await producer.send(msg, selector);
+      assert(sendResult_2 && sendResult_2.msgId);
+      assert(sendResult.messageQueue.key === sendResult_2.messageQueue.key);
+
+      console.log(sendResult, sendResult_2, '2 results');
+      let queueId = null;
+      await new Promise(r => {
+        consumer.subscribe(TOPIC, 'TagC', async msg => {
+          if (queueId === null) { // first msg
+            queueId = msg.queueId;
+          }
+          if (queueId !== null) { // 2nd msg
+            console.log(msg.queueId);
+            assert(msg.queueId === queueId); // 2 msgs have same queueId
+            r();
+          }
+        });
+      });
+    });
+
+    // 顺序消息消费失败
+    it('failed msg should be dropped', async () => {
+      await sleep(3000);
+
+      const msg = new Message(TOPIC, // topic
+        'TagC', // tag
+        'Hello MetaQ !!! ' // body
+      );
+      const msg_2 = new Message(TOPIC, // topic
+        'TagC', // tag
+        'Hello MetaQ !!! 2nd' // body
+      );
+      const selector = Math.random().toString();
+      const sendResult = await producer.send(msg, selector);
+      assert(sendResult && sendResult.msgId);
+      const sendResult_2 = await producer.send(msg_2, selector);
+      assert(sendResult_2 && sendResult_2.msgId);
+
+      console.log(sendResult, sendResult_2, '2 results');
+      let queueId = null;
+      await new Promise(r => {
+        consumer.subscribe(TOPIC, 'TagC', async msg => {
+          if (msg.body.toString() === 'Hello MetaQ !!! ') { // first msg
+            queueId = msg.queueId;
+            throw Error('msg processing failed');
+          }
+          if (queueId !== null) { // 2nd msg
+            console.warn('message receive ------------> ', msg.body.toString());
+            if (msg.msgId === sendResult_2.msgId) {
+              assert(msg.body.toString() === 'Hello MetaQ !!! 2nd');
+              r();
+            }
+          }
+        });
+      });
+    });
+  });
+
+  // 顺序消息,锁失效逻辑
+  describe('order message & lock expired', () => {
+    let consumer;
+    let producer;
+    beforeEach(async () => {
+      consumer = new Consumer(Object.assign({
+        httpclient,
+        isBroadcast: false,
+        consumeOrderly: true,
+      }, config));
+      mm(consumer, 'lockAll', () => {
+        return;
+      });
+      await consumer.ready();
+      producer = new Producer(Object.assign({
+        httpclient,
+      }, config));
+      await producer.ready();
+    });
+
+    afterEach(async () => {
+      await consumer.close();
+      await producer.close();
+      mm.restore();
+    });
+
+    it('should relock when lock expired', async () => {
+      await sleep(3000);
+
+      const msg = new Message(TOPIC, // topic
+        'TagD', // tag
+        'Hello MetaQ !!! ' // body
+      );
+      const selector = Math.random().toString();
+      const sendResult = await producer.send(msg, selector);
+      assert(sendResult && sendResult.msgId);
+      const sendResult_2 = await producer.send(msg, selector);
+      assert(sendResult_2 && sendResult_2.msgId);
+
+      console.log(sendResult, sendResult_2, '2 results');
+      let queueId = null;
+      await new Promise(r => {
+        consumer.subscribe(TOPIC, 'TagD', async msg => {
+          // parallelConsumeLimit为1的时候，第一条消息拖到锁失效
+          if (queueId === null) { // first msg
+            console.log('sleep until lock expired');
+            await sleep(30000);
+          }
+          if (queueId !== null) {
+            console.log(msg.queueId);
+            assert(msg.queueId === queueId);
+            r();
+          }
+          queueId = msg.queueId;
+        });
+      });
     });
   });
 });
