@@ -16,7 +16,7 @@ describe('test/message/message_decoder.test.js', function() {
     const message = MessageDecoder.decode(buf);
     assert(message);
     assert(message.msgId === '0ADA91A6000029CC0000006500E59F3E');
-    assert.deepEqual(message.body, new Buffer('{"room":"1","msg":"1"}'));
+    assert.deepEqual(message.body, Buffer.from('{"room":"1","msg":"1"}'));
     assert(message.tags === 'TagA');
     assert(!message.keys);
     assert(message.delayTimeLevel === 0);
@@ -30,7 +30,7 @@ describe('test/message/message_decoder.test.js', function() {
     const message = MessageDecoder.decode(buf);
     assert(message);
     assert(message.msgId === '0ADA91A6000029CC000000661A586D98');
-    assert.deepEqual(message.body, new Buffer('Hello MetaQ !!!'));
+    assert.deepEqual(message.body, Buffer.from('Hello MetaQ !!!'));
     assert(message.tags, 'TagA');
     assert(!message.keys);
     assert(message.delayTimeLevel === 0);
@@ -58,7 +58,7 @@ describe('test/message/message_decoder.test.js', function() {
     const messages = MessageDecoder.decodes(buf);
     assert(messages.length === 3);
     assert(messages[0].msgId === '0ADA91A6000029CC000000659560A2AA');
-    assert.deepEqual(messages[0].body, new Buffer('Hello MetaQ !!!'));
+    assert.deepEqual(messages[0].body, Buffer.from('Hello MetaQ !!!'));
     assert(messages[1].msgId === '0ADA91A6000029CC000000659560D349');
     assert(messages[2].msgId === '0ADA91A6000029CC000000659560D578');
   });
