@@ -1,4 +1,16 @@
 
+3.5.0 / 2019-04-12
+==================
+
+**features**
+  * [[`073058b`](http://github.com/ali-sdk/ali-ons/commit/073058b9d82415f7063758e815f0d31b2b9d5a2b)] - feat: support delay deliver message (#65) (MarvinWilliam <<la805779602@hotmail.com>>)
+
+**fixes**
+  * [[`8ef9502`](http://github.com/ali-sdk/ali-ons/commit/8ef95027eef89456b17531b89761fa375168bfd6)] - fix: drop message if reconsumeTimes > maxReconsumeTimes (#72) (zōng yǔ <<gxcsoccer@users.noreply.github.com>>)
+
+**others**
+  * [[`a44d4d0`](http://github.com/ali-sdk/ali-ons/commit/a44d4d05919d68200e012442e7831e5b2217f808)] - chore: upgrade deps (#71) (zōng yǔ <<gxcsoccer@users.noreply.github.com>>)
+
 3.4.0 / 2019-03-13
 ==================
 
