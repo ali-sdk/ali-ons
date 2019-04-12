@@ -53,11 +53,11 @@
   "devDependencies": {
     "autod": "^3.1.0",
     "contributors": "^0.5.1",
-    "egg-bin": "^4.12.1",
-    "eslint": "^5.15.3",
+    "egg-bin": "^4.12.3",
+    "eslint": "^5.16.0",
     "eslint-config-egg": "^7.3.1",
     "mm": "^2.5.0",
-    "urllib": "^2.33.2"
+    "urllib": "^2.33.3"
   },
   "engines": {
     "node": ">= 8.0.0"

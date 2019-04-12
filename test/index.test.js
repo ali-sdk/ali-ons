@@ -360,13 +360,24 @@ describe('test/index.test.js', () => {
   describe('process exception', () => {
     let consumer;
     let producer;
+    const logger = {
+      info() {},
+      warn() {},
+      error(...args) {
+        console.error(...args);
+      },
+      debug() {},
+    };
     beforeEach(async () => {
       consumer = new Consumer(Object.assign({
         httpclient,
+        logger,
         rebalanceInterval: 2000,
+        maxReconsumeTimes: 1,
       }, config));
       producer = new Producer(Object.assign({
         httpclient,
+        logger,
       }, config));
       await consumer.ready();
       await producer.ready();
@@ -425,6 +436,40 @@ describe('test/index.test.js', () => {
       assert(sendResult && sendResult.msgId);
       msgId = sendResult.msgId;
       await consumer.await('*');
+    });
+
+    it('should drop message if reconsumeTimes gt maxReconsumeTimes', async () => {
+      let msgId;
+      let reconsumeTimes = 0;
+      mm(consumer.logger, 'warn', (msg, reconsumeTimes, maxReconsumeTimes, id, originMessageId) => {
+        console.log(msg);
+        if (msg === '[MQPushConsumer] consume message failed, drop it for reconsumeTimes=%d and maxReconsumeTimes=%d, msgId: %s, originMsgId: %s' &&
+          originMessageId === msgId) {
+          consumer.emit('*');
+        }
+      });
+
+      consumer.subscribe(TOPIC, '*', async msg => {
+        console.warn('message receive ------------> ', msg.body.toString(), msg.reconsumeTimes);
+        if (msg.msgId === msgId || msg.originMessageId === msgId) {
+          assert(msg.body.toString() === 'Hello MetaQ !!! ');
+          reconsumeTimes = msg.reconsumeTimes;
+          throw new Error('mock error');
+        }
+      });
+
+      await sleep(5000);
+
+      const msg = new Message(TOPIC, // topic
+        'TagA', // tag
+        'Hello MetaQ !!! ' // body
+      );
+      const sendResult = await producer.send(msg);
+      assert(sendResult && sendResult.msgId);
+      msgId = sendResult.msgId;
+      await consumer.await('*');
+
+      assert(reconsumeTimes === 1);
     });
 
     it('should retry(retry message) if process failed', async () => {
