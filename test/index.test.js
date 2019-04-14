@@ -14,7 +14,7 @@ const rimraf = require('mz-modules/rimraf');
 const config = require('../example/config');
 const MixAll = require('../lib/mix_all');
 
-const TOPIC = 'GXCSOCCER';
+const TOPIC = config.topic;
 
 const localOffsetStoreDir = path.join(osenv.home(), '.rocketmq_offsets_node');
 
@@ -604,10 +604,6 @@ describe('test/index.test.js', () => {
         httpclient,
       }, config));
       await consumer.ready();
-      consumer.subscribe(config.topic, 'TagDelay', async msg => {
-        console.log('message receive ------------> ', msg.body.toString());
-        consumeTime = Date.now();
-      });
     });
 
     after(async () => {
@@ -618,13 +614,23 @@ describe('test/index.test.js', () => {
     it('should receive message with specified time', async () => {
       const delayTime = 10000;
 
-      const msg = new Message(config.topic, 'TagDelay', 'hello delay message');
+      const body = 'hello delay message at ' + Date.now();
+      const msg = new Message(config.topic, 'TagDelay', body);
       const produceTime = Date.now();
       msg.setStartDeliverTime(produceTime + delayTime);
-      await producer.send(msg);
+      const result = await producer.send(msg);
+      console.log(result);
 
-      await sleep(15000);
-      assert(consumeTime - produceTime <= delayTime + deviationTime && consumeTime - produceTime >= delayTime);
+      consumer.subscribe(config.topic, 'TagDelay', async msg => {
+        console.log('message receive ------------> ', msg.msgId, msg.body.toString());
+        if (body === msg.body.toString()) {
+          consumeTime = Date.now();
+          consumer.emit('consumed');
+        }
+      });
+
+      await consumer.await('consumed');
+      assert(consumeTime - produceTime <= delayTime + deviationTime && consumeTime - produceTime >= delayTime - deviationTime);
     });
   });
 });

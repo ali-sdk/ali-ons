@@ -4,9 +4,7 @@ const assert = require('assert');
 const httpclient = require('urllib');
 const ClientConfig = require('../lib/client_config');
 const MQClient = require('../lib/mq_client');
-
-const consumerGroup = 'CID_GXCSOCCER';
-const producerGroup = 'PID_GXCSOCCER';
+const { consumerGroup, producerGroup } = require('../example/config');
 
 describe('test/mq_client.test.js', () => {
   const config = new ClientConfig(Object.assign({ httpclient }, require('../example/config')));

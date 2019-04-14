@@ -17,7 +17,7 @@ const config = Object.assign({
 }, rawConfig);
 const MixAll = require('../lib/mix_all');
 
-const TOPIC = 'GXCSOCCER';
+const TOPIC = config.topic;
 
 const localOffsetStoreDir = path.join(osenv.home(), '.rocketmq_offsets_node');
 
