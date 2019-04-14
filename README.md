@@ -50,7 +50,6 @@ producer
 
 ```js
 'use strict';
-const co = require('co');
 const httpclient = require('urllib');
 const Producer = require('ali-ons').Producer;
 const Message = require('ali-ons').Message;
@@ -83,7 +82,7 @@ const producer = new Producer({
 
 Please contact to @gxcsoccer to give you accessKey
 
-- [ons secure data](https://sharelock.io/1/JcYdigaQDDbJbFiuUAue6LkmT2pDLAdvWcYZE4A-WKw.Tfy1NC/ry_QLizOWLO_B1_l2OnW7_jRoOH8Avm52oHDLkI9Jq_z5P8va5/GVODvZrDgZL1VvAdzyMO7cKULW25vDle_vsXhPSJdQXul-QM4b/tiv0cYLrLpw9FRJYtT_fcSasEcdtt776WqJ_R1ftC9eg7vtsxD/-CPmBShnD5SG_cEVVZSQuv_geF63l_m6rXPbhKBhHJ3mKGF0_2/yAlpQHVdZA6N5iFlvcMI0ogmXNqkqBGl6yE3-cIqSRZqLSDUd4/EPMhwInVHlL4O9BwM5wYDMT17hiYIaQsXvsGCywGEdjEpLKZdV/7ir9t8RBov0q0FgpcuMrJTvMyQ5dyeoDGzyLm5QTjL8Ty7gqa_/.tFnt_NoGsl3YifWa5BhLnA)
+- [ons secure data](https://sharelock.io/1/UM02CJiYyhXiZDOn1nhX0iqPqMIQtdwI_T5BY3F-tHs.d8-ycA/01veKH9kgAuFuKCqlVPzGsyPWJ8mQLaKPJjjcB9tpdbvi9L6XQ/IgqDvAdVDMzV9lK2gQzyAj7q-CNk8-1tWrLmdqMV0oJ5qgky40/HgpZyKKDfOGAcyqQ20RUdRgCLRWqF8LUUko0uDl_L-ATNOsi5z/W2bsvBc8tAoqSwNR7u2Sqe6XkNmD98s3UQOK-6T8--VwTbHzcG/dwkHwie3EkGB-TbiMnbRh7_5A-DaOTCtALP3xvl4G0XKxuOriC/2yfuPp7WRucTAoqx2STO5Hv3MZEhh3IXf7YiOQ8pWDDqjLuQSY/_irqzYyeseY9m106ksMUq3-yS_qkBRIuoyL-hHk9ZRhGppsdA5/Dw4Pjg.fmNP3aFkLnvPuhlPRwNcng)
 
 ## License
 

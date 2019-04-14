@@ -8,7 +8,8 @@ const ClientConfig = require('../../lib/client_config');
 const MessageQueue = require('../../lib/message_queue');
 const RemoteBrokerOffsetStore = require('../../lib/store/remote_broker');
 
-const TOPIC = 'GXCSOCCER';
+const TOPIC = config.topic;
+const consumerGroup = config.consumerGroup;
 
 describe('test/store/remote_broker.test.js', function() {
   let client;
@@ -18,7 +19,7 @@ describe('test/store/remote_broker.test.js', function() {
     await client.ready();
     const routerInfoData = await client.getDefaultTopicRouteInfoFromNameServer(TOPIC, 3000);
     brokerName = routerInfoData.brokerDatas[0].brokerName;
-    this.store = new RemoteBrokerOffsetStore(client, 'CID-GXCSOCCER');
+    this.store = new RemoteBrokerOffsetStore(client, consumerGroup);
   });
 
   after(() => client.close());

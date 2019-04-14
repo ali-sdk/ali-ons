@@ -11,7 +11,7 @@ const RemotingCommand = require('../lib/protocol/command/remoting_command');
 const localIp = require('address').ip();
 const onsAddr = 'http://onsaddr-internet.aliyun.com/rocketmq/nsaddr4client-internet';
 
-const TOPIC = 'GXCSOCCER';
+const TOPIC = config.topic;
 
 describe('test/channel.test.js', function() {
   let address;
