@@ -633,4 +633,76 @@ describe('test/index.test.js', () => {
       assert(consumeTime - produceTime <= delayTime + deviationTime && consumeTime - produceTime >= delayTime - deviationTime);
     });
   });
+
+  // 阿里云rocketmq自创建实例
+  describe('namespace', () => {
+    let producer;
+    let consumer;
+    const namespace = 'NAMESPACE_TEST';
+
+    beforeEach(async () => {
+      producer = new Producer(Object.assign({
+        httpclient,
+        namespace,
+      }, config));
+      consumer = new Consumer(Object.assign({
+        httpclient,
+        namespace,
+      }, config));
+
+      await producer.ready();
+      await consumer.ready();
+    });
+
+    afterEach(async () => {
+      if (producer) {
+        await producer.close();
+      }
+      if (consumer) {
+        await consumer.close();
+      }
+    });
+
+    it('should append namespace to group', () => {
+      assert(consumer.consumerGroup === `${namespace}%${config.consumerGroup}`);
+      assert(producer.producerGroup === `${namespace}%${config.producerGroup}`);
+    });
+
+    it('should send message with namespaced topic', async () => {
+      const msg = new Message(config.topic, 'TagNamespace', 'hello namespace');
+      await producer.send(msg);
+      assert(msg.topic === `${namespace}%${config.topic}`);
+
+      //  这里主要是为了把上面测试时发出去的消息消费掉
+      consumer.subscribe(config.topic, 'TagNamespace', async msg => {
+        console.log('receive message', msg);
+      });
+
+      await sleep(5000);
+    });
+
+    it('should create subscribe topic with namespace', () => {
+      consumer.subscribe(config.topic, 'TagNamespace', async () => {});
+      [ ...consumer.subscriptions.keys() ].forEach(topic => {
+        console.log(topic);
+        assert(topic.includes(namespace));
+      });
+    });
+
+    it('should receive namespaced topic message', async () => {
+      let result;
+      const message = 'hello namespace temp';
+      const msg = new Message(config.topic, 'TagNamespace_temp', message);
+      const sendResult = await producer.send(msg);
+      console.log(sendResult);
+
+      consumer.subscribe(config.topic, 'TagNamespace_temp', async msg => {
+        console.log('receive message', msg);
+        result = msg;
+      });
+
+      await sleep(5000);
+      assert(result.body.toString() === message);
+    });
+  });
 });
