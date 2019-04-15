@@ -1,4 +1,10 @@
 
+3.6.1 / 2019-04-15
+==================
+
+**fixes**
+  * [[`7e5c6a4`](http://github.com/ali-sdk/ali-ons/commit/7e5c6a4ccf3f488df0f0e41a9a7bcfb0aadefb14)] - fix: not set nameSrv by default (#77) (zōng yǔ <<gxcsoccer@users.noreply.github.com>>)
+
 3.6.0 / 2019-04-15
 ==================
 
