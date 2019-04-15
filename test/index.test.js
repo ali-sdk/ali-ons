@@ -373,7 +373,7 @@ describe('test/index.test.js', () => {
         httpclient,
         logger,
         rebalanceInterval: 2000,
-        maxReconsumeTimes: 1,
+        maxReconsumeTimes: 2,
       }, config));
       producer = new Producer(Object.assign({
         httpclient,
@@ -467,7 +467,7 @@ describe('test/index.test.js', () => {
 
       await sleep(60000);
 
-      assert(reconsumeTimes === 1);
+      assert(reconsumeTimes === 2);
     });
 
     it('should retry(retry message) if process failed', async () => {
@@ -476,7 +476,7 @@ describe('test/index.test.js', () => {
         throw new Error('mock error');
       });
       consumer.subscribe(TOPIC, '*', async msg => {
-        console.warn('message receive ------------> ', msg.body.toString());
+        console.warn('message receive ------------> ', msg.msgId, msg.originMessageId, msg.body.toString());
         if (msg.msgId === msgId || msg.originMessageId === msgId) {
           assert(msg.body.toString() === 'Hello MetaQ !!! ');
           if (msg.reconsumeTimes === 0) {
@@ -495,6 +495,8 @@ describe('test/index.test.js', () => {
       const sendResult = await producer.send(msg);
       assert(sendResult && sendResult.msgId);
       msgId = sendResult.msgId;
+
+      console.log('msgId -->', msgId);
       await consumer.await('*');
     });
 
