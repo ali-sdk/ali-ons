@@ -36,6 +36,7 @@ const consumer = new Consumer({
   accessKeyId: 'your-accessKeyId',
   accessKeySecret: 'your-AccessKeySecret',
   consumerGroup: 'your-consumer-group',
+  // namespace: '', // aliyun namespace support
   // isBroadcast: true,
 });
 
@@ -59,6 +60,7 @@ const producer = new Producer({
   accessKeyId: 'your-accessKeyId',
   accessKeySecret: 'your-AccessKeySecret',
   producerGroup: 'your-producer-group',
+  // namespace: '', // aliyun namespace support
 });
 
 (async () => {
