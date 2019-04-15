@@ -11,8 +11,8 @@
     "pkgfiles": "egg-bin pkgfiles --check",
     "lint": "eslint . --ext .js",
     "test": "npm run lint && npm run test-local",
-    "test-local": "egg-bin test",
-    "cov": "TEST_TIMEOUT=60000 egg-bin cov",
+    "test-local": "TEST_TIMEOUT=120000 egg-bin test",
+    "cov": "TEST_TIMEOUT=120000 egg-bin cov",
     "ci": "npm run autod -- --check && npm run pkgfiles && npm run lint && npm run cov",
     "contributors": "contributors -f plain -o AUTHORS"
   },

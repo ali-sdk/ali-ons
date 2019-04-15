@@ -438,21 +438,18 @@ describe('test/index.test.js', () => {
       await consumer.await('*');
     });
 
-    it('should drop message if reconsumeTimes gt maxReconsumeTimes', async () => {
+    it('broker should drop message if reconsumeTimes gt maxReconsumeTimes', async () => {
       let msgId;
       let reconsumeTimes = 0;
-      mm(consumer.logger, 'warn', (msg, reconsumeTimes, maxReconsumeTimes, id, originMessageId) => {
-        console.log(msg);
-        if (msg === '[MQPushConsumer] consume message failed, drop it for reconsumeTimes=%d and maxReconsumeTimes=%d, msgId: %s, originMsgId: %s' &&
-          originMessageId === msgId) {
-          consumer.emit('*');
-        }
-      });
+
+      const randomNumber = Math.floor(Math.random() * 100) + 1;
+
+      const msgBody = 'Hello MetaQ !!!' + randomNumber;
 
       consumer.subscribe(TOPIC, '*', async msg => {
         console.warn('message receive ------------> ', msg.body.toString(), msg.reconsumeTimes);
-        if (msg.msgId === msgId || msg.originMessageId === msgId) {
-          assert(msg.body.toString() === 'Hello MetaQ !!! ');
+        if (msg.msgId === msgId || msg.originMessageId && (msg.originMessageId === msgId)) {
+          assert(msg.body.toString() === msgBody);
           reconsumeTimes = msg.reconsumeTimes;
           throw new Error('mock error');
         }
@@ -462,12 +459,13 @@ describe('test/index.test.js', () => {
 
       const msg = new Message(TOPIC, // topic
         'TagA', // tag
-        'Hello MetaQ !!! ' // body
+        msgBody // body
       );
       const sendResult = await producer.send(msg);
       assert(sendResult && sendResult.msgId);
       msgId = sendResult.msgId;
-      await consumer.await('*');
+
+      await sleep(60000);
 
       assert(reconsumeTimes === 1);
     });
