@@ -1,4 +1,16 @@
 
+3.6.0 / 2019-04-15
+==================
+
+**features**
+  * [[`2cd16be`](http://github.com/ali-sdk/ali-ons/commit/2cd16bed4608ca4235ad9eb5c211b9aad090a411)] - feat: support namespace (#75) (zōng yǔ <<gxcsoccer@users.noreply.github.com>>)
+
+**fixes**
+  * [[`0176223`](http://github.com/ali-sdk/ali-ons/commit/0176223b3fdd3a2e5a219fb02b03552764951588)] - fix: retry should process by broker (#73) (Hongcai Deng <<admin@dhchouse.com>>)
+
+**others**
+  * [[`35f9341`](http://github.com/ali-sdk/ali-ons/commit/35f934174077e6835284ca5cbebb3e171122fd11)] - chore: update test config (#74) (zōng yǔ <<gxcsoccer@users.noreply.github.com>>)
+
 3.5.1 / 2019-04-12
 ==================
 
