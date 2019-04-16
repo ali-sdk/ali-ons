@@ -212,6 +212,18 @@ describe('test/index.test.js', () => {
       });
       assert(offset === -1);
     });
+
+    it('should support namespace', () => {
+      mm(producer, 'namespace', 'xxx');
+      mm(consumer, 'namespace', 'xxx');
+
+      assert(consumer.consumerGroup === `xxx%${config.consumerGroup}`);
+      assert(producer.producerGroup === `xxx%${config.producerGroup}`);
+
+      assert(consumer.formatTopic(`%RETRY%${consumer.consumerGroup}`) === `%RETRY%${consumer.consumerGroup}`);
+      assert(producer.formatTopic('TEST_TOPIC') === 'xxx%TEST_TOPIC');
+      assert(consumer.formatTopic('TEST_TOPIC') === 'xxx%TEST_TOPIC');
+    });
   });
 
   // 广播消费
@@ -593,7 +605,7 @@ describe('test/index.test.js', () => {
     let consumer;
     let consumeTime = 0;
     // 允许的误差时间
-    const deviationTime = 3000;
+    const deviationTime = 4000;
 
     before(async () => {
       producer = new Producer(Object.assign({
