@@ -1,4 +1,10 @@
 
+3.6.2 / 2019-04-16
+==================
+
+**fixes**
+  * [[`cb385e3`](http://github.com/ali-sdk/ali-ons/commit/cb385e31c486877b625eb6b27a69245c1d43e65d)] - fix: namespace logic (#78) (zōng yǔ <<gxcsoccer@users.noreply.github.com>>)
+
 3.6.1 / 2019-04-15
 ==================
 
