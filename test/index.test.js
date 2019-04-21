@@ -702,6 +702,43 @@ describe('test/index.test.js', () => {
       });
     });
 
+    it('function as selector', async () => {
+      await sleep(3000);
+
+      const msg = new Message(TOPIC, // topic
+        'TagC', // tag
+        'Hello MetaQ !!! ' // body
+      );
+      const shardingKey = Math.random().toString();
+      const selector = mqs => {
+        let select = Math.abs(utils.hashCode(shardingKey));
+        if (select < 0) {
+          select = 0;
+        }
+        return mqs[select % mqs.length];
+      };
+      const sendResult = await producer.send(msg, selector);
+      assert(sendResult && sendResult.msgId);
+      const sendResult_2 = await producer.send(msg, selector);
+      assert(sendResult_2 && sendResult_2.msgId);
+      assert(sendResult.messageQueue.key === sendResult_2.messageQueue.key);
+
+      console.log(sendResult, sendResult_2, '2 results');
+      let queueId = null;
+      await new Promise(r => {
+        consumer.subscribe(TOPIC, 'TagC', async msg => {
+          if (queueId === null) { // first msg
+            queueId = msg.queueId;
+          }
+          if (queueId !== null) { // 2nd msg
+            console.log(msg.queueId);
+            assert(msg.queueId === queueId); // 2 msgs have same queueId
+            r();
+          }
+        });
+      });
+    });
+
     // 顺序消息消费失败
     it('failed msg should be dropped', async () => {
       await sleep(3000);
