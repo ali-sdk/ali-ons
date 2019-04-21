@@ -83,9 +83,9 @@ const producer = new Producer({
   const sendResult = await producer.send(msg, orderId);
   // or you can write your own message queue seletor (RocketMQ api)
   const sendResult = await producer.send(msg, messageQueues => {
-        let select = Math.max(Math.abs(hashCode(orderId)), 0);
-        return messageQueues[select % messageQueues.length];
-      });
+    let select = Math.max(Math.abs(hashCode(orderId)), 0);
+    return messageQueues[select % messageQueues.length];
+  });
   console.log(sendResult);
 })().catch(err => console.error(err))
 ```
