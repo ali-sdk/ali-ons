@@ -12,7 +12,7 @@ ali-ons
 [david-image]: https://img.shields.io/david/ali-sdk/ali-ons.svg?style=flat-square
 [david-url]: https://david-dm.org/ali-sdk/ali-ons
 
-Aliyun Open Notification Service Client (base on opensource project [RocketMQ](https://github.com/alibaba/RocketMQ/tree/master/rocketmq-client))
+Aliyun Open Notification Service Client (base on opensource project [RocketMQ](https://rocketmq.apache.org/))
 
 Sub module of [ali-sdk](https://github.com/ali-sdk/ali-sdk).
 
