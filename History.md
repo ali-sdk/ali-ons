@@ -1,4 +1,10 @@
 
+3.6.4 / 2019-05-10
+==================
+
+**fixes**
+  * [[`456cd1f`](http://github.com/ali-sdk/ali-ons/commit/456cd1f70d22161f51749f48737aa038e0b69f6a)] - fix: producer should format topic first (#81) (Hongcai Deng <<admin@dhchouse.com>>)
+
 3.6.3 / 2019-05-10
 ==================
 
