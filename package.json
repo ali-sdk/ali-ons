@@ -1,6 +1,6 @@
 {
   "name": "ali-ons",
-  "version": "3.6.4",
+  "version": "3.6.5",
   "description": "Aliyun Open Notification Service Client",
   "main": "lib/index.js",
   "files": [

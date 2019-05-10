@@ -1,4 +1,10 @@
 
+3.6.5 / 2019-05-10
+==================
+
+**others**
+  * [[`92892df`](http://github.com/ali-sdk/ali-ons/commit/92892df3ca1a4f33bec36ebd5fcfc8b3a3251a45)] - chore: adjust pulling log format (#82) (zōng yǔ <<gxcsoccer@users.noreply.github.com>>)
+
 3.6.4 / 2019-05-10
 ==================
 
