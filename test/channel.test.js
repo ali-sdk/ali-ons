@@ -1,8 +1,10 @@
 'use strict';
 
 const mm = require('mm');
+const net = require('net');
 const assert = require('assert');
 const urllib = require('urllib');
+const sleep = require('mz-modules/sleep');
 const Channel = require('../lib/channel');
 const config = require('../example/config');
 const RequestCode = require('../lib/protocol/request_code');
@@ -89,6 +91,29 @@ describe('test/channel.test.js', function() {
       },
     }));
     await channel.ready();
+  });
+
+  it('should close if timeout', async () => {
+    const server = net.createServer();
+    server.listen(9876);
+    await sleep(100);
+
+    const channel = new Channel('127.0.0.1:9876');
+    await assert.rejects(async () => {
+      await channel.invoke(new RemotingCommand({
+        code: RequestCode.GET_ROUTEINTO_BY_TOPIC,
+        customHeader: {
+          topic: TOPIC,
+        },
+      }), 5000);
+    }, {
+      name: 'ResponseTimeoutError',
+    });
+    await sleep(100);
+
+    assert(!channel._socket);
+
+    server.close();
   });
 
   // it('should emit error if connect failed', function(done) {
