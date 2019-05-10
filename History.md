@@ -1,4 +1,13 @@
 
+3.6.3 / 2019-05-10
+==================
+
+**fixes**
+  * [[`d477806`](http://github.com/ali-sdk/ali-ons/commit/d47780628ef18be8fda5922c63c71b0bacc4c75c)] - fix: close socket while pulling message timeout (#80) (zōng yǔ <<gxcsoccer@users.noreply.github.com>>)
+
+**others**
+  * [[`d1ca295`](http://github.com/ali-sdk/ali-ons/commit/d1ca295a9a600da2cb3bee99c206aa03c92025cf)] - update RocketMQ link to https://rocketmq.apache.org (#79) (小雷 <<863837949@qq.com>>)
+
 3.6.2 / 2019-04-16
 ==================
 
