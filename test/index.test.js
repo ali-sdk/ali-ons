@@ -623,7 +623,7 @@ describe('test/index.test.js', () => {
       await consumer.close();
     });
 
-    it('should receive message with specified time', async () => {
+    it.skip('should receive message with specified time', async () => {
       const delayTime = 10000;
 
       const body = 'hello delay message at ' + Date.now();
