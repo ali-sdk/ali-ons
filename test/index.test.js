@@ -836,4 +836,171 @@ describe('test/index.test.js', () => {
       });
     });
   });
+
+  // 事务消息
+  describe('transaction message', () => {
+    let consumer;
+    let producer;
+
+    const localTrans = new Map();
+    const rand = parseInt(Math.random() * 100000).toString();
+    const regexp = new RegExp(`TransactionMsgTest-([1-5])-${rand}`);
+    const testArg = 'testArg';
+
+    const executeLocalTransaction = (msg, arg, LocalTransactionState) => {
+      const body = msg.body.toString();
+      const match = body.match(regexp);
+      if (match) {
+        const i = body.match(regexp)[1];
+        // msg-4返回COMMIT_MESSAGE, msg-5返回ROLLBACK_MESSAGE
+        if (i === '4') {
+          return LocalTransactionState.COMMIT_MESSAGE;
+        } else if (i === '5') {
+          return LocalTransactionState.ROLLBACK_MESSAGE;
+        }
+        // 假设msg-1、2、3消息的本地事务结果分别为1、2、3
+        localTrans.set(body, i);
+        // 模拟执行本地事务突然宕机的情况（或者本地执行成功发送确认消息失败的场景)
+        return LocalTransactionState.UNKNOW;
+      }
+    };
+
+    const checkLocalTransaction = (msg, LocalTransactionState) => {
+      const body = msg.body.toString();
+      const status = localTrans.get(body);
+      if (status) {
+        switch (status) {
+          case '1':
+            // 依然无法确定本地事务的执行结果，返回UNKNOW，下次会继续回查结果
+            return LocalTransactionState.UNKNOW;
+          case '2':
+            // 查到本地事务执行成功，返回COMMIT_MESSAGE，broker投递消息到consumer
+            return LocalTransactionState.COMMIT_MESSAGE;
+          case '3':
+            // 查询到本地事务执行失败，需要回滚消息。
+            return LocalTransactionState.ROLLBACK_MESSAGE;
+          default:
+            break;
+        }
+      }
+    };
+
+    beforeEach(async () => {
+      consumer = new Consumer(Object.assign({
+        httpclient,
+        isBroadcast: false,
+      }, config));
+      await consumer.ready();
+      producer = new Producer(Object.assign({
+        httpclient,
+        transaction: {
+          executeLocalTransaction,
+          checkLocalTransaction,
+        },
+      }, config));
+      await producer.ready();
+    });
+
+    afterEach(async () => {
+      await consumer.close();
+      await producer.close();
+      mm.restore();
+    });
+
+    // test 1,3,5 will leave lots of junk data on broker, so skip it
+
+    it.skip('transcation message 1 should not be received', async () => {
+      await sleep(3000);
+
+      const msg = new Message(TOPIC,
+        'TagE', // tag
+        `TransactionMsgTest-1-${rand}`
+      );
+      const sendResult = await producer.sendMessageInTransaction(msg, testArg);
+      assert(sendResult && sendResult.msgId);
+
+      await new Promise(r => {
+        setTimeout(r, 10000);
+        consumer.subscribe(TOPIC, 'TagE', async msg => {
+          const body = msg.body.toString();
+          assert(body !== `TransactionMsgTest-1-${rand}`);
+        });
+      });
+    });
+
+    it('transcation message 2 should be received', async () => {
+      await sleep(3000);
+
+      const msg = new Message(TOPIC,
+        'TagE', // tag
+        `TransactionMsgTest-2-${rand}`
+      );
+      const sendResult = await producer.sendMessageInTransaction(msg, testArg);
+      assert(sendResult && sendResult.msgId);
+
+      await new Promise(r => {
+        consumer.subscribe(TOPIC, 'TagE', async msg => {
+          const body = msg.body.toString();
+          if (body === `TransactionMsgTest-2-${rand}`) {
+            r();
+          }
+        });
+      });
+    });
+
+    it.skip('transcation message 3 should not be received', async () => {
+
+      const msg = new Message(TOPIC,
+        'TagE', // tag
+        `TransactionMsgTest-3-${rand}`
+      );
+      const sendResult = await producer.sendMessageInTransaction(msg, testArg);
+      assert(sendResult && sendResult.msgId);
+
+      await new Promise(r => {
+        setTimeout(r, 10000);
+        consumer.subscribe(TOPIC, 'TagE', async msg => {
+          const body = msg.body.toString();
+          assert(body !== `TransactionMsgTest-3-${rand}`);
+        });
+      });
+    });
+
+    it('transcation message 4 should be received', async () => {
+
+      const msg = new Message(TOPIC,
+        'TagE', // tag
+        `TransactionMsgTest-4-${rand}`
+      );
+      const sendResult = await producer.sendMessageInTransaction(msg, testArg);
+      assert(sendResult && sendResult.msgId);
+
+      await new Promise(r => {
+        consumer.subscribe(TOPIC, 'TagE', async msg => {
+          const body = msg.body.toString();
+          if (body === `TransactionMsgTest-4-${rand}`) {
+            r();
+          }
+        });
+      });
+    });
+
+    it.skip('transcation message 5 should not be received', async () => {
+
+      const msg = new Message(TOPIC,
+        'TagE', // tag
+        `TransactionMsgTest-5-${rand}`
+      );
+      const sendResult = await producer.sendMessageInTransaction(msg, testArg);
+      assert(sendResult && sendResult.msgId);
+
+      await new Promise(r => {
+        setTimeout(r, 10000);
+        consumer.subscribe(TOPIC, 'TagE', async msg => {
+          const body = msg.body.toString();
+          assert(body !== `TransactionMsgTest-5-${rand}`);
+        });
+      });
+    });
+  });
 });

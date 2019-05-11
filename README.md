@@ -62,6 +62,21 @@ const producer = new Producer({
   accessKeySecret: 'your-AccessKeySecret',
   producerGroup: 'your-producer-group',
   // namespace: '', // aliyun namespace support
+  // transaction: {
+  //   // for transaction message only, specify local execute/check function
+  //   // return COMMIT_MESSAGE\ROLLBACK_MESSAGE\UNKNOW from LocalTransactionState
+  //   executeLocalTransaction: (msg, arg, LocalTransactionState) => {
+  //     // arg is the 2nd arg from producer.sendMessageInTransaction
+  //     if (msg.toString() === 'xxx') {
+  //       return LocalTransactionState.COMMIT_MESSAGE;
+  //     }
+  //   },
+  //   checkLocalTransaction: (msg, LocalTransactionState) => {
+  //     if (msg.toString() !== database.get('xxx')) {
+  //       return LocalTransactionState.ROLLBACK_MESSAGE;
+  //     }
+  //   },
+  // }
 });
 
 (async () => {
@@ -86,6 +101,10 @@ const producer = new Producer({
     let select = Math.max(Math.abs(hashCode(orderId)), 0);
     return messageQueues[select % messageQueues.length];
   });
+
+  // send transaction message
+  const sendResult = await producer.sendMessageInTransaction(msg, 'testArg');
+
   console.log(sendResult);
 })().catch(err => console.error(err))
 ```
