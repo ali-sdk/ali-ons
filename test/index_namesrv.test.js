@@ -288,7 +288,7 @@ describe('test/index.test.js', () => {
           );
           sendResult = await producer.send(msg);
           assert(sendResult && sendResult.msgId);
-          msgId = sendResult.msgId;
+          msgId = sendResult.offsetMsgId;
           console.log('send message success,', sendResult.msgId);
 
           if (!received.has(msgId)) {
@@ -306,7 +306,7 @@ describe('test/index.test.js', () => {
 
           await sleep(3000);
 
-          const message = await consumer.viewMessage(sendResult.msgId);
+          const message = await consumer.viewMessage(sendResult.offsetMsgId);
           assert(message.body.toString() === 'Hello MetaQ !!! ');
         });
       });
@@ -346,7 +346,7 @@ describe('test/index.test.js', () => {
       const sendResult = await producer.send(msg);
       assert(sendResult && sendResult.msgId);
 
-      const msgId = sendResult.msgId;
+      const msgId = sendResult.offsetMsgId;
       console.log(sendResult);
 
       await new Promise(r => {
@@ -426,7 +426,7 @@ describe('test/index.test.js', () => {
       );
       const sendResult = await producer.send(msg);
       assert(sendResult && sendResult.msgId);
-      msgId = sendResult.msgId;
+      msgId = sendResult.offsetMsgId;
       await consumer.await('*');
     });
 
@@ -454,7 +454,7 @@ describe('test/index.test.js', () => {
       );
       const sendResult = await producer.send(msg);
       assert(sendResult && sendResult.msgId);
-      msgId = sendResult.msgId;
+      msgId = sendResult.offsetMsgId;
       await consumer.await('*');
     });
 
@@ -482,7 +482,7 @@ describe('test/index.test.js', () => {
       );
       const sendResult = await producer.send(msg);
       assert(sendResult && sendResult.msgId);
-      msgId = sendResult.msgId;
+      msgId = sendResult.offsetMsgId;
       await consumer.await('*');
     });
   });
