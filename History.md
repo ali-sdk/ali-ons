@@ -1,4 +1,10 @@
 
+3.7.0 / 2019-10-16
+==================
+
+**features**
+  * [[`3889a0e`](http://github.com/ali-sdk/ali-ons/commit/3889a0e03637fbb4ce8501abee3bd45d70000e1b)] - feat: support nameAddr as an array (#91) (zōng yǔ <<gxcsoccer@users.noreply.github.com>>)
+
 3.6.5 / 2019-05-10
 ==================
 
