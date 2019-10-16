@@ -4,7 +4,7 @@ const assert = require('assert');
 const httpclient = require('urllib');
 const ClientConfig = require('../lib/client_config');
 const MQClient = require('../lib/mq_client');
-const { consumerGroup, producerGroup } = require('../example/config');
+const { consumerGroup, producerGroup, topic } = require('../example/config');
 
 describe('test/mq_client.test.js', () => {
   const config = new ClientConfig(Object.assign({ httpclient }, require('../example/config')));
@@ -70,8 +70,8 @@ describe('test/mq_client.test.js', () => {
 
   it('should updateAllTopicRouterInfo ok', async () => {
     const subscriptions = new Map();
-    subscriptions.set('TopicTest', {
-      topic: 'TopicTest',
+    subscriptions.set(topic, {
+      topic,
       subString: '*',
       classFilterMode: false,
       tagsSet: [],
@@ -86,7 +86,7 @@ describe('test/mq_client.test.js', () => {
     });
     client.registerConsumer('xxx', null);
     client.registerProducer(producerGroup, {
-      publishTopicList: [ 'TopicTest' ],
+      publishTopicList: [ topic ],
       updateTopicPublishInfo() {},
       isPublishTopicNeedUpdate() {},
     });
@@ -112,12 +112,12 @@ describe('test/mq_client.test.js', () => {
       doRebalance() {},
     });
     client.registerProducer(config.producerGroup, {
-      publishTopicList: [ 'TopicTest' ],
+      publishTopicList: [ topic ],
       updateTopicPublishInfo() {},
       isPublishTopicNeedUpdate() {},
     });
-    await client.updateTopicRouteInfoFromNameServer('TopicTest');
-    let topicRouteData = client._topicRouteTable.get('TopicTest');
+    await client.updateTopicRouteInfoFromNameServer(topic);
+    let topicRouteData = client._topicRouteTable.get(topic);
     assert(topicRouteData);
     assert(topicRouteData.brokerDatas.length > 0);
     assert(client._brokerAddrTable.size > 0);
@@ -125,25 +125,25 @@ describe('test/mq_client.test.js', () => {
     await client.unregisterConsumer(config.consumerGroup);
     await client.unregisterProducer(config.producerGroup);
 
-    await client.updateTopicRouteInfoFromNameServer('TopicTest', true, {
-      createTopicKey: 'TopicTest',
+    await client.updateTopicRouteInfoFromNameServer(topic, true, {
+      createTopicKey: topic,
       defaultTopicQueueNums: 8,
     });
 
-    topicRouteData = client._topicRouteTable.get('TopicTest');
+    topicRouteData = client._topicRouteTable.get(topic);
     assert(topicRouteData);
     assert(topicRouteData.brokerDatas.length > 0);
     assert(client._brokerAddrTable.size > 0);
   });
 
   it('should topicRouteData2TopicPublishInfo ok', function() {
-    let info = client._topicRouteData2TopicPublishInfo('TopicTest', {
+    let info = client._topicRouteData2TopicPublishInfo(topic, {
       orderTopicConf: 'xxx:8;yyy:8',
     });
     assert(info.orderTopic);
     assert(info.messageQueueList.length === 16);
 
-    info = client._topicRouteData2TopicPublishInfo('TopicTest', {
+    info = client._topicRouteData2TopicPublishInfo(topic, {
       brokerDatas: [{
         brokerAddrs: {
           0: '10.10.10.10:1000',
@@ -162,7 +162,7 @@ describe('test/mq_client.test.js', () => {
     assert(!info.orderTopic);
     assert(info.messageQueueList.length === 8);
 
-    info = client._topicRouteData2TopicPublishInfo('TopicTest', {
+    info = client._topicRouteData2TopicPublishInfo(topic, {
       brokerDatas: [{
         brokerAddrs: {
           1: '10.10.10.10:1000',
@@ -194,7 +194,7 @@ describe('test/mq_client.test.js', () => {
     await client.sendHeartbeatToAllBroker();
     const subscriptions = new Map();
     subscriptions.set(config.consumerGroup, {
-      topic: 'TopicTest',
+      topic,
       subString: '*',
       classFilterMode: false,
       tagsSet: [],
@@ -208,13 +208,13 @@ describe('test/mq_client.test.js', () => {
       doRebalance() {},
     });
     client.registerProducer(config.producerGroup, {
-      publishTopicList: [ 'TopicTest' ],
+      publishTopicList: [ topic ],
       updateTopicPublishInfo() {},
       isPublishTopicNeedUpdate() {},
     });
-    await client.updateTopicRouteInfoFromNameServer('TopicTest');
+    await client.updateTopicRouteInfoFromNameServer(topic);
 
-    const topicRouteData = client._topicRouteTable.get('TopicTest');
+    const topicRouteData = client._topicRouteTable.get(topic);
     assert(topicRouteData);
     assert(topicRouteData.brokerDatas.length > 0);
     assert(client._brokerAddrTable.size > 0);
