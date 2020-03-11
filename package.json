@@ -43,7 +43,7 @@
     "mkdirp": "^0.5.1",
     "mz-modules": "^2.1.0",
     "osenv": "^0.1.5",
-    "p-gather": "^1.0.2",
+    "p-all": "^2.1.0",
     "sdk-base": "^3.6.0",
     "tcp-base": "^3.1.0",
     "utility": "^1.16.1"
