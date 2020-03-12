@@ -1,4 +1,10 @@
 
+3.7.1 / 2020-03-12
+==================
+
+**fixes**
+  * [[`cb244b7`](http://github.com/ali-sdk/ali-ons/commit/cb244b7c089f1d30fa1388b4334f27742ada196a)] - fix: use co-gather instead of p-gather (#95) (Yiyu He <<dead_horse@qq.com>>)
+
 3.7.0 / 2019-10-16
 ==================
 
