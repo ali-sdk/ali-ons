@@ -1,4 +1,10 @@
 
+3.7.2 / 2020-03-17
+==================
+
+**fixes**
+  * [[`637aee4`](http://github.com/ali-sdk/ali-ons/commit/637aee4424e26ffce2bb1398e2a587b0ce1d6d94)] - fix: random-publish-queue-select-start-point (#36) (Hongcai Deng <<admin@dhchouse.com>>)
+
 3.7.1 / 2020-03-12
 ==================
 
