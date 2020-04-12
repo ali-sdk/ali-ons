@@ -38,6 +38,7 @@ const consumer = new Consumer({
   consumerGroup: 'your-consumer-group',
   // namespace: '', // aliyun namespace support
   // isBroadcast: true,
+  // consumeOrderly: true,
 });
 
 consumer.subscribe(config.topic, '*', async msg => {
@@ -76,6 +77,15 @@ const producer = new Producer({
   // msg.setStartDeliverTime(Date.now() + 5000);
 
   const sendResult = await producer.send(msg);
+  // order message example: send msgs with the same orderId to same queue
+  const orderId = '******';
+  // pass string to 2nd arg, same string will be send to same queue (aliyun-ons api)
+  const sendResult = await producer.send(msg, orderId);
+  // or you can write your own message queue seletor (RocketMQ api)
+  const sendResult = await producer.send(msg, messageQueues => {
+    let select = Math.max(Math.abs(hashCode(orderId)), 0);
+    return messageQueues[select % messageQueues.length];
+  });
   console.log(sendResult);
 })().catch(err => console.error(err))
 ```
