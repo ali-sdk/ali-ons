@@ -42,6 +42,7 @@ const consumer = new Consumer({
 
 consumer.subscribe(config.topic, '*', async msg => {
   console.log(`receive message, msgId: ${msg.msgId}, body: ${msg.body.toString()}`)
+  // return Consumer.ACTION_RETRY; // you can return ACTION_RETRY, then this message will be directly retried
 });
 
 consumer.on('error', err => console.log(err));
