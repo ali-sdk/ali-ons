@@ -1,4 +1,10 @@
 
+3.8.0 / 2020-04-14
+==================
+
+**features**
+  * [[`207280f`](http://github.com/ali-sdk/ali-ons/commit/207280f8f00f82d98a2fb5bd32a528c3fdc1c68f)] - feat: support reconsume message later (#97) (Gaara <<hubiao1003hf@163.com>>)
+
 3.7.2 / 2020-03-17
 ==================
 
