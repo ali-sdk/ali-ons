@@ -512,6 +512,33 @@ describe('test/index.test.js', () => {
       await consumer.await('*');
     });
 
+    it('should retry if process return ACTION_RETRY', async () => {
+      let msgId;
+      consumer.subscribe(TOPIC, '*', async msg => {
+        console.warn('message receive ------------> ', msg.body.toString());
+        if (msg.msgId === msgId || msg.originMessageId === msgId) {
+          assert(msg.body.toString() === 'retry');
+          if (msg.reconsumeTimes === 0) {
+            return Consumer.ACTION_RETRY;
+          }
+          if (msg.reconsumeTimes === 1) {
+            consumer.emit('*');
+          }
+        }
+      });
+
+      await sleep(5000);
+
+      const msg = new Message(TOPIC, // topic
+        'TagRetry', // tag
+        'retry' // body
+      );
+      const sendResult = await producer.send(msg);
+      assert(sendResult && sendResult.msgId);
+      msgId = sendResult.msgId;
+      await consumer.await('*');
+    });
+
     it('should retry(fall to local) if process failed', async () => {
       let msgId;
       mm(consumer, 'sendMessageBack', async () => {
