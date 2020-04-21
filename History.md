@@ -1,4 +1,11 @@
 
+3.8.1 / 2020-04-21
+==================
+
+**others**
+  * [[`836d9e5`](http://github.com/ali-sdk/ali-ons/commit/836d9e5fae2b9cb0a79f0cc7874b26a7939af791)] - chore: add more debug log (#87) (Hongcai Deng <<admin@dhchouse.com>>)
+  * [[`6851d8e`](http://github.com/ali-sdk/ali-ons/commit/6851d8efe0a2f91cf598440b350060abafdcbff7)] - chore: reduce error (#64) (Hongcai Deng <<admin@dhchouse.com>>)
+
 3.8.0 / 2020-04-14
 ==================
 
