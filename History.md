@@ -1,4 +1,10 @@
 
+3.8.2 / 2021-01-28
+==================
+
+**fixes**
+  * [[`b6ab961`](http://github.com/ali-sdk/ali-ons/commit/b6ab96159ab584ca27ab3390eb91eb79dddb95e8)] - fix: 🐛 repeat pull on same queue (#100) (Hongcai Deng <<admin@dhchouse.com>>)
+
 3.8.1 / 2020-04-21
 ==================
 
