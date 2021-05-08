@@ -157,4 +157,21 @@ describe('test/remoting_client.test.js', function() {
     channel.close();
     assert(client.getAndCreateChannel(address).clientId !== channel.clientId);
   });
+
+  it('should support unitName', async () => {
+    mm(httpclient, 'request', async url => {
+      assert(url.includes('-xxx?nofix=1'));
+      return {
+        status: 200,
+        data: '127.0.0.1:9876;127.0.0.2:9876',
+      };
+    });
+    const client = new RemotingClient(Object.assign({ httpclient, unitName: 'xxx' }, config));
+    await client.ready();
+
+    assert(client._namesrvAddrList, [
+      '127.0.0.1:9876',
+      '127.0.0.2:9876',
+    ]);
+  });
 });

@@ -99,7 +99,7 @@ describe('test/mq_client.test.js', () => {
     try {
       await client.unregisterConsumer('xxx');
     } catch (err) {
-      assert(err.message.includes('resource xxx not created'));
+      assert(err.message.includes('xxx not created'));
     }
     await client.unregisterProducer('xxx');
   });
