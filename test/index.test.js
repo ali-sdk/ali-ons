@@ -326,7 +326,7 @@ describe('test/index.test.js', () => {
   describe('cluster', () => {
     let consumer;
     let producer;
-    before(async () => {
+    beforeEach(async () => {
       consumer = new Consumer(Object.assign({
         httpclient,
         isBroadcast: false,
@@ -338,7 +338,7 @@ describe('test/index.test.js', () => {
       await producer.ready();
     });
 
-    after(async () => {
+    afterEach(async () => {
       await consumer.close();
       await producer.close();
     });
@@ -360,6 +360,34 @@ describe('test/index.test.js', () => {
 
       await new Promise(r => {
         consumer.subscribe(TOPIC, '*', async msg => {
+          if (msg.msgId === msgId) {
+            assert(msg.body.toString() === 'Hello MetaQ !!! ');
+            r();
+          }
+        });
+      });
+    });
+
+    it.skip('should subscribe message with SQL92 expression type ok', async () => {
+      // 公有云未开启 SQL 过滤
+      await sleep(3000);
+
+      const msg = new Message(TOPIC, // topic
+        'TagA', // tag
+        'Hello MetaQ !!! ' // body
+      );
+      msg.properties.a = '1';
+      const sendResult = await producer.send(msg);
+      assert(sendResult && sendResult.msgId);
+
+      const msgId = sendResult.msgId;
+      console.log(sendResult);
+
+      await new Promise(r => {
+        consumer.subscribe(TOPIC, {
+          expressionType: 'SQL92',
+          subString: 'a IS NOT NULL',
+        }, async msg => {
           if (msg.msgId === msgId) {
             assert(msg.body.toString() === 'Hello MetaQ !!! ');
             r();
