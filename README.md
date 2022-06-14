@@ -48,6 +48,21 @@ consumer.subscribe(config.topic, '*', async msg => {
 consumer.on('error', err => console.log(err));
 ```
 
+If you want to use sql filter, you can subscribe a topic with a sql expression:
+```js
+consumer.subscribe(
+  config.topic,
+  {
+    expressType: 'SQL92',
+    subString: 'a is not null'
+  },
+  async msg => {
+    console.log(`receive message, msgId: ${msg.msgId}, body: ${msg.body.toString()}`)
+  }
+);
+```
+For more information about sql filter, see: [Filter Messages By SQL92](https://rocketmq.apache.org/rocketmq/filter-messages-by-sql92-in-rocketmq/)
+
 producer
 
 ```js
