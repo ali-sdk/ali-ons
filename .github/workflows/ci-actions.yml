@@ -1,0 +1,22 @@
+name: ci-actions
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    environment: 'ci'
+    strategy:
+      matrix:
+        node-version: [16.x]
+    env:
+      ALI_SDK_ONS_ID: ${{ secrets.ALI_SDK_ONS_ID }}
+      ALI_SDK_ONS_SECRET: ${{ secrets.ALI_SDK_ONS_SECRET }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm install
+      - run: npm run ci
+      - run: npm install -g codecov && codecov
+    

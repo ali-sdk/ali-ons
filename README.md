@@ -2,13 +2,13 @@ ali-ons
 =======
 
 [![NPM version][npm-image]][npm-url]
-[![build status][travis-image]][travis-url]
+[![ci-actions][ci-image]][ci-url]
 [![David deps][david-image]][david-url]
 
 [npm-image]: https://img.shields.io/npm/v/ali-ons.svg?style=flat-square
 [npm-url]: https://npmjs.org/package/ali-ons
-[travis-image]: https://img.shields.io/travis/ali-sdk/ali-ons.svg?style=flat-square
-[travis-url]: https://travis-ci.org/ali-sdk/ali-ons
+[ci-image]: https://github.com/ali-sdk/ali-ons/actions/workflows/ci-actions.yml/badge.svg
+[ci-url]: https://github.com/ali-sdk/ali-ons/actions/workflows/ci-actions.yml
 [david-image]: https://img.shields.io/david/ali-sdk/ali-ons.svg?style=flat-square
 [david-url]: https://david-dm.org/ali-sdk/ali-ons
 
@@ -47,6 +47,21 @@ consumer.subscribe(config.topic, '*', async msg => {
 
 consumer.on('error', err => console.log(err));
 ```
+
+If you want to use sql filter, you can subscribe a topic with a sql expression:
+```js
+consumer.subscribe(
+  config.topic,
+  {
+    expressionType: 'SQL92',
+    subString: 'a is not null'
+  },
+  async msg => {
+    console.log(`receive message, msgId: ${msg.msgId}, body: ${msg.body.toString()}`)
+  }
+);
+```
+For more information about sql filter, see: [Filter Messages By SQL92](https://rocketmq.apache.org/rocketmq/filter-messages-by-sql92-in-rocketmq/)
 
 producer
 
