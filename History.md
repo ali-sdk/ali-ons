@@ -1,4 +1,10 @@
 
+3.11.0 / 2023-01-12
+==================
+
+**fixes**
+  * [[`15846d4`](http://github.com/ali-sdk/ali-ons/commit/15846d4176bb2e4ef7c4d7399b02affdbcb66d58)] - fix: update name server by throttle (#108) (Gao Yang <<82163514@qq.com>>)
+
 3.10.0 / 2022-06-20
 ==================
 
