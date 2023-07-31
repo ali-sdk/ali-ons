@@ -1,4 +1,10 @@
 
+3.12.0 / 2023-07-31
+==================
+
+**features**
+  * [[`32d4d09`](http://github.com/ali-sdk/ali-ons/commit/32d4d0969fb3f10f691e38a1202f06359516593f)] - feat: 支持shardingKey 客户端实现 (#109) (Orange Mi <<orangemiwj@gmail.com>>)
+
 3.11.0 / 2023-01-12
 ==================
 
