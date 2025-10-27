@@ -7,14 +7,12 @@
     "lib"
   ],
   "scripts": {
-    "autod": "autod",
     "pkgfiles": "egg-bin pkgfiles --check",
     "lint": "eslint . --ext .js",
     "test": "npm run lint && npm run test-local",
     "test-local": "TEST_TIMEOUT=120000 egg-bin test",
     "cov": "TEST_TIMEOUT=120000 egg-bin cov",
-    "ci": "npm run autod -- --check && npm run pkgfiles && npm run lint && npm run cov",
-    "contributors": "contributors -f plain -o AUTHORS"
+    "ci": "npm run pkgfiles && npm run lint && npm run cov"
   },
   "repository": {
     "type": "git",
@@ -49,8 +47,6 @@
     "utility": "^1.17.0"
   },
   "devDependencies": {
-    "autod": "^3.1.1",
-    "contributors": "^0.5.1",
     "egg-bin": "^4.16.1",
     "eslint": "^7.25.0",
     "eslint-config-egg": "^9.0.0",
