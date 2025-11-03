@@ -8,6 +8,25 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    services:
+      rocketmq-namesrv:
+        image: apache/rocketmq:4.9.4
+        ports:
+          - 9876:9876
+        options: >-
+          --name rocketmq-namesrv
+          --detach
+
+      rocketmq-broker:
+        image: apache/rocketmq:4.9.4
+        ports:
+          - 10911:10911
+        options: >-
+          --name rocketmq-broker
+          --detach
+          --link rocketmq-namesrv:namesrv
+          --env "NAMESRV_ADDR=localhost:9876"
+
     environment: 'ci'
     strategy:
       matrix:
@@ -24,4 +43,4 @@ jobs:
       - run: npm install
       - run: npm run ci
       - run: npm install -g codecov && codecov
-    
+
