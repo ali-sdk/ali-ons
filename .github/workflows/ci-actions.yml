@@ -8,25 +8,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    services:
-      rocketmq-namesrv:
-        image: apache/rocketmq:4.9.4
-        ports:
-          - 9876:9876
-        options: >-
-          --name rocketmq-namesrv
-          --detach
-
-      rocketmq-broker:
-        image: apache/rocketmq:4.9.4
-        ports:
-          - 10911:10911
-        options: >-
-          --name rocketmq-broker
-          --detach
-          --link rocketmq-namesrv:namesrv
-          --env "NAMESRV_ADDR=localhost:9876"
-
     environment: 'ci'
     strategy:
       matrix:
@@ -35,6 +16,19 @@ jobs:
       ALI_SDK_ONS_ID: ${{ secrets.ALI_SDK_ONS_ID }}
       ALI_SDK_ONS_SECRET: ${{ secrets.ALI_SDK_ONS_SECRET }}
     steps:
+      - name: Start RocketMQ Services
+        run: |
+          docker network create rocketmq
+          docker run -d --name rocketmq-namesrv --network rocketmq -p 9876:9876 apache/rocketmq:5.3.2 sh mqnamesrv
+          echo "Waiting for RocketMQ services to be ready..."
+          sleep 20
+          docker logs rocketmq-namesrv
+          echo "brokerIP1=127.0.0.1" > broker.conf
+          docker run -d --name rocketmq-broker --network rocketmq -p 10911:10911 -e NAMESRV_ADDR=rocketmq-namesrv:9876 -v ./broker.conf:/home/rocketmq/conf/broker.conf apache/rocketmq:5.3.2 sh mqbroker --enable-proxy -c /home/rocketmq/conf/broker.conf
+          echo "Waiting for RocketMQ broker to be ready..."
+          sleep 20
+          docker logs rocketmq-broker
+          docker exec rocketmq-broker sh mqadmin updatetopic -t TP_alions_test_topic -c DefaultCluster
       - uses: actions/checkout@v5
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v6
