@@ -12,6 +12,6 @@ module.exports = {
   consumerGroup: 'GID_alions',
   topic: 'TP_alions_test_topic',
   // https://help.aliyun.com/document_detail/102895.html 阿里云产品更新，支持实例化
-  nameSrv: 'onsaddr.mq-internet-access.mq-internet.aliyuncs.com:80',
-  onsAddr: 'http://onsaddr-internet.aliyun.com/rocketmq/nsaddr4client-internet',
+  nameSrv: 'localhost:9876',
+  onsAddr: 'localhost:10911',
 };
