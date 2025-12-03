@@ -11,14 +11,14 @@ const RequestCode = require('../lib/protocol/request_code');
 const ResponseCode = require('../lib/protocol/response_code');
 const RemotingCommand = require('../lib/protocol/command/remoting_command');
 const localIp = require('address').ip();
-const { onsAddr } = require('../example/config');
+const { nameSrv } = require('../example/config');
 
 const TOPIC = config.topic;
 
 describe('test/channel.test.js', function() {
   let address;
   before(function(done) {
-    urllib.request(onsAddr, function(err, data, result) {
+    urllib.request(nameSrv, function(err, data, result) {
       if (err) {
         return done(err);
       }

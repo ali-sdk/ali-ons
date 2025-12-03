@@ -27,7 +27,9 @@ describe('test/index.test.js', () => {
         httpclient,
         retryAnotherBrokerWhenNotStoreOK: true,
         compressMsgBodyOverHowmuch: 10,
-      }, config));
+      }, config, {
+        onsAddr: [ 'http://localhost:10911', 'http://localhost:10912' ],
+      }));
       await producer.ready();
       consumer = new Consumer(Object.assign({
         httpclient,

@@ -24,7 +24,7 @@ jobs:
           sleep 20
           docker logs rocketmq-namesrv
           echo "brokerIP1=127.0.0.1" > broker.conf
-          docker run -d --name rocketmq-broker --network rocketmq -p 10911:10911 -e NAMESRV_ADDR=rocketmq-namesrv:9876 -v ./broker.conf:/home/rocketmq/conf/broker.conf apache/rocketmq:5.3.2 sh mqbroker --enable-proxy -c /home/rocketmq/conf/broker.conf
+          docker run -d --name rocketmq-broker --network rocketmq -p 10912:10912 -p 10911:10911 -e NAMESRV_ADDR=rocketmq-namesrv:9876 -v ./broker.conf:/home/rocketmq/conf/broker.conf apache/rocketmq:5.3.2 sh mqbroker --enable-proxy -c /home/rocketmq/conf/broker.conf
           echo "Waiting for RocketMQ broker to be ready..."
           sleep 20
           docker logs rocketmq-broker
