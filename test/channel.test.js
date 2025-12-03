@@ -11,7 +11,7 @@ const RequestCode = require('../lib/protocol/request_code');
 const ResponseCode = require('../lib/protocol/response_code');
 const RemotingCommand = require('../lib/protocol/command/remoting_command');
 const localIp = require('address').ip();
-const onsAddr = 'http://onsaddr-internet.aliyun.com/rocketmq/nsaddr4client-internet';
+const { onsAddr } = require('../example/config');
 
 const TOPIC = config.topic;
 
