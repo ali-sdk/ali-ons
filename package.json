@@ -30,7 +30,6 @@
   },
   "homepage": "https://github.com/ali-sdk/ali-ons#readme",
   "dependencies": {
-    "JSON2": "^0.1.0",
     "address": "^1.1.2",
     "binary-search-insert": "^1.0.3",
     "byte": "^2.0.0",
@@ -38,6 +37,7 @@
     "co-gather": "^1.0.1",
     "debug": "^4.3.1",
     "is-type-of": "^1.2.1",
+    "JSON2": "^0.1.0",
     "long": "^4.0.0",
     "mkdirp": "^1.0.4",
     "mz-modules": "^2.1.0",
@@ -51,6 +51,7 @@
     "eslint": "^7.25.0",
     "eslint-config-egg": "^9.0.0",
     "mm": "^3.2.0",
+    "nyc": "^17.1.0",
     "urllib": "^2.37.1"
   },
   "engines": {
