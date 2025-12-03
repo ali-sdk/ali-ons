@@ -184,7 +184,7 @@ describe('test/mq_client.test.js', () => {
 
   it('should cleanOfflineBroker ok', function() {
     client._brokerAddrTable.set('fake-broker', {
-      0: '127.0.0.1:10991',
+      0: '127.0.0.1:10910',
     });
     client._cleanOfflineBroker();
     assert(!client._brokerAddrTable.has('fake-broker'));

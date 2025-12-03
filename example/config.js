@@ -13,5 +13,5 @@ module.exports = {
   topic: 'TP_alions_test_topic',
   // https://help.aliyun.com/document_detail/102895.html 阿里云产品更新，支持实例化
   nameSrv: 'localhost:9876',
-  onsAddr: 'http://localhost:10911',
+  // onsAddr: 'http://onsaddr-internet.aliyun.com/rocketmq/nsaddr4client-internet',
 };

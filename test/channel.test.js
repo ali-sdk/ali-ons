@@ -16,9 +16,10 @@ const { nameSrv } = require('../example/config');
 const TOPIC = config.topic;
 
 describe('test/channel.test.js', function() {
+  const onsAddr = 'http://onsaddr-internet.aliyun.com/rocketmq/nsaddr4client-internet';
   let address;
   before(function(done) {
-    urllib.request(nameSrv, function(err, data, result) {
+    urllib.request(onsAddr, function(err, data, result) {
       if (err) {
         return done(err);
       }
@@ -34,12 +35,12 @@ describe('test/channel.test.js', function() {
   afterEach(mm.restore);
 
   it('should connect ok', () => {
-    const channel = new Channel(address);
+    const channel = new Channel(nameSrv);
     return channel.ready();
   });
 
   it('should close ok', done => {
-    const channel = new Channel(address);
+    const channel = new Channel(nameSrv);
     channel.ready(err => {
       if (err) {
         done(err);
@@ -55,7 +56,7 @@ describe('test/channel.test.js', function() {
   });
 
   it('should invoke ok', async () => {
-    const channel = new Channel(address, config);
+    const channel = new Channel(nameSrv, config);
     await channel.ready();
     const res = await channel.invoke(new RemotingCommand({
       code: RequestCode.GET_ROUTEINTO_BY_TOPIC,
@@ -82,7 +83,7 @@ describe('test/channel.test.js', function() {
   });
 
   it('should invoke oneway ok', async () => {
-    const channel = new Channel(address);
+    const channel = new Channel(nameSrv);
     await channel.invokeOneway(new RemotingCommand({
       code: RequestCode.GET_KV_CONFIG_BY_VALUE,
       customHeader: {
@@ -95,10 +96,11 @@ describe('test/channel.test.js', function() {
 
   it('should close if timeout', async () => {
     const server = net.createServer();
-    server.listen(9876);
+    server.listen();
+    const { port } = server.address();
     await sleep(100);
 
-    const channel = new Channel('127.0.0.1:9876');
+    const channel = new Channel(`127.0.0.1:${port}`);
     await assert.rejects(async () => {
       await channel.invoke(new RemotingCommand({
         code: RequestCode.GET_ROUTEINTO_BY_TOPIC,
@@ -147,7 +149,7 @@ describe('test/channel.test.js', function() {
   });
 
   // it.only('should throw error if command is invalid', function*() {
-  //   const channel = new Channel(address);
+  //   const channel = new Channel(nameSrv);
   //   let isError = false;
   //   try {
   //     yield channel.invoke('invalid command', 5000);
@@ -162,7 +164,7 @@ describe('test/channel.test.js', function() {
   // });
 
   it('should clearupInvokes after connection close', async () => {
-    const channel = new Channel(address);
+    const channel = new Channel(nameSrv);
     await channel.ready();
     channel.close();
     let isError = false;
@@ -175,13 +177,13 @@ describe('test/channel.test.js', function() {
       }), 5000);
     } catch (err) {
       isError = true;
-      assert(err.message === `The socket was closed. (address: ${address})`);
+      assert(err.message === `The socket was closed. (address: ${nameSrv})`);
     }
     assert(isError);
   });
 
   // it('should throw error if invoke after close', function(done) {
-  //   const channel = new Channel(address);
+  //   const channel = new Channel(nameSrv);
   //   channel.on('close', function() {
   //     channel.invoke(new RemotingCommand({
   //       code: RequestCode.GET_ROUTEINTO_BY_TOPIC,
@@ -198,13 +200,13 @@ describe('test/channel.test.js', function() {
   // });
 
   it('should invoke response ok', async () => {
-    const channel = new Channel(address);
+    const channel = new Channel(nameSrv);
     await channel.ready();
     await channel.invokeOneway(RemotingCommand.createResponseCommand(ResponseCode.SUCCESS, 1, ''));
   });
 
   it('should throw error if invoke timeout', async () => {
-    const channel = new Channel(address);
+    const channel = new Channel(nameSrv);
     let isError = false;
     try {
       await channel.invoke(new RemotingCommand({
@@ -217,14 +219,14 @@ describe('test/channel.test.js', function() {
     } catch (err) {
       isError = true;
       assert(err.name === 'ResponseTimeoutError');
-      assert(err.message === `Server no response in 1ms, address#${address}`);
+      assert(err.message === `Server no response in 1ms, address#${nameSrv}`);
     }
     channel.close();
     assert(isError);
   });
 
   // it('should throw error if connection close by remote server', function(done) {
-  //   const channel = new Channel(address);
+  //   const channel = new Channel(nameSrv);
   //   yield channel.ready();
   //   channel.invoke(new RemotingCommand({
   //     code: RequestCode.GET_KV_CONFIG_BY_VALUE,
