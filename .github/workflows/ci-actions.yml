@@ -1,22 +1,51 @@
 name: ci-actions
-on: [push]
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  merge_group:
 jobs:
   test:
     runs-on: ubuntu-latest
     environment: 'ci'
     strategy:
       matrix:
-        node-version: [16.x]
+        node-version: [16, 18, 20, 22, 24]
     env:
       ALI_SDK_ONS_ID: ${{ secrets.ALI_SDK_ONS_ID }}
       ALI_SDK_ONS_SECRET: ${{ secrets.ALI_SDK_ONS_SECRET }}
     steps:
-      - uses: actions/checkout@v3
+      - name: Start RocketMQ Services
+        run: |
+          docker network create rocketmq
+          docker run -d --name rocketmq-namesrv --network rocketmq -p 9876:9876 apache/rocketmq:5.3.2 sh mqnamesrv
+          echo "Waiting for RocketMQ services to be ready..."
+          sleep 20
+          docker logs rocketmq-namesrv
+          echo "brokerIP1=127.0.0.1" > broker.conf
+          broker_ports=(10911 10912)
+          for port in ${broker_ports[@]}; do
+            docker run -d --name rocketmq-broker-${port} --network rocketmq -p ${port}:${port} -e "NAMESRV_ADDR=rocketmq-namesrv:9876" -v ./broker.conf:/home/rocketmq/conf/broker.conf apache/rocketmq:5.3.2 sh mqbroker --enable-proxy -c /home/rocketmq/conf/broker.conf
+            echo "Waiting for RocketMQ broker to be ready..."
+            sleep 20
+            docker logs rocketmq-broker-${port}
+            docker exec rocketmq-broker-${port} sh mqadmin updatetopic -t TP_alions_test_topic -c DefaultCluster
+          done
+
+      - uses: actions/checkout@v5
+
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
-      - run: npm install
-      - run: npm run ci
-      - run: npm install -g codecov && codecov
-    
+
+      - name: npm install, build, and test
+        run: |
+          npm install
+          npm run ci
+
+      - name: Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}

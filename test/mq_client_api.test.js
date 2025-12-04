@@ -12,7 +12,7 @@ describe('test/mq_client_api.test.js', function() {
   let client;
   before(() => {
     client = new MQClientAPI(Object.assign({ httpclient }, Object.assign({}, config, {
-      nameSrv: [ 'onsaddr.mq-internet-access.mq-internet.aliyuncs.com:80' ],
+      nameSrv: [ config.nameSrv ],
     })));
     return client.ready();
   });

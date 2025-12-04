@@ -21,7 +21,7 @@ const TOPIC = config.topic;
 
 const localOffsetStoreDir = path.join(osenv.home(), '.rocketmq_offsets_node');
 
-describe('test/index.test.js', () => {
+describe('test/index_namesrv.test.js', () => {
   describe('API', () => {
     let producer;
     let consumer;
