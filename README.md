@@ -2,11 +2,17 @@
 
 [![NPM version][npm-image]][npm-url]
 [![ci-actions][ci-image]][ci-url]
+[![npm download][download-image]][download-url]
+[![Node.js Version](https://img.shields.io/node/v/ali-ons.svg?style=flat)](https://nodejs.org/en/download/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://makeapullrequest.com)
+![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/ali-sdk/ali-ons)
 
 [npm-image]: https://img.shields.io/npm/v/ali-ons.svg?style=flat-square
 [npm-url]: https://npmjs.org/package/ali-ons
 [ci-image]: https://github.com/ali-sdk/ali-ons/actions/workflows/ci-actions.yml/badge.svg
 [ci-url]: https://github.com/ali-sdk/ali-ons/actions/workflows/ci-actions.yml
+[download-image]: https://img.shields.io/npm/dm/ali-ons.svg?style=flat-square
+[download-url]: https://npmjs.org/package/ali-ons
 
 Aliyun Open Notification Service Client (base on opensource project [RocketMQ](https://rocketmq.apache.org/))
 
@@ -101,7 +107,6 @@ Please contact to @gxcsoccer to give you accessKey
 ## License
 
 [MIT](LICENSE)
-
 
 ## Contributors
 
